@@ -1,11 +1,21 @@
+# -------------------------------------------------------------------------------------------
+# Command line interface used to run a solution specified with -s SoleSolution,
+# with the input file specified with -f Full/Path/To/input_file.in
+# outputting the result to the output file specified with -o Full/Path/To/output_file.ans
+#
+# The interface should be able to handle stdin as input and stdout as output
+# Note that the requested solution name must be available as a callable in file scope
+# for the program to recognize it. For now it is also case sensitive.
+# -------------------------------------------------------------------------------------------
 import sys
 import os
 import traceback
 import argparse
 
 # Own
+# These beautiful imports are needed during runtime for the program to be able to
+# identify which solutions are available to run
 from solutions.point_in_polygon.solution import point_in_polygon
-# Beautiful, I know...
 
 # Definitions
 from error import InvalidInputFileError, InvalidSolutionFuncError
