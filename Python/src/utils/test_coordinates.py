@@ -1,6 +1,6 @@
 import unittest
 
-from coordinates import *
+from src.utils.coordinates import *
 
 # Keywords
 START = 'start'
