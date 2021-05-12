@@ -31,7 +31,7 @@ def init_argparse() -> argparse.ArgumentParser:
     return parser
 
 def main():
-    # cl_opt contains the command line specified options;
+    # cl_opt (CommandLine OPTions) contains the parsed command line arguments;
     # input/output file, which solution to run etc.
     cl_opt = parse_and_verify_input()
     try:
@@ -48,9 +48,11 @@ def main():
         pass
     return 0
 
-# Parse command line arguments and verify that they are usable.
+# Parse command line arguments and verify that they are useable.
+# Note that argparse already verifies that the input and output files are useable.
 def parse_and_verify_input():
     parser = init_argparse()
+    # 'vars()' is just to get the parsed arguments as a dict,
     args = vars( parser.parse_args(args=sys.argv[1:]) )
     # Verify that the solution user specified is a function that actually exists
     if args[SOLUTION] not in globals():
@@ -60,8 +62,8 @@ def parse_and_verify_input():
         raise InvalidSolutionFuncError
     return args
 
-# Read input from file defined in cl_opt
-# source can also be stdin, though this functionality is not verified yet.
+# Read input from filename defined in cl_opt
+# returns result as a list of strings
 def input(cl_opt):
     data = ""
     with open(cl_opt[INPUT_FILE].name) as f:
@@ -69,7 +71,7 @@ def input(cl_opt):
     return data
 
 # res = results to be printed
-# cl_opt contains info about where the results should be printed.
+# writes result to filename specified in cl_opt
 def output(res, cl_opt):
     if cl_opt[OUTPUT_FILE] is not None:
         print(res, file=cl_opt[OUTPUT_FILE])
