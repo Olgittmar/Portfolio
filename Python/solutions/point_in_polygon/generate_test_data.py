@@ -1,1 +1,0 @@
-from solutions.point_in_polygon.solution import point_in_polygon

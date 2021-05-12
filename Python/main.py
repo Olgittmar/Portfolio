@@ -35,10 +35,10 @@ def main():
     # input/output file, which solution to run etc.
     cl_opt = parse_and_verify_input()
     try:
-        data = input(cl_opt)
+        data = read_input(cl_opt)
         func = globals()[cl_opt[SOLUTION]]
         results = func(data)
-        output( results, cl_opt )
+        write_output( results, cl_opt )
     except InvalidInputFileError as err:
         print('No input file specified: %s' % err.args )
     except InvalidSolutionFuncError as err:
@@ -64,7 +64,7 @@ def parse_and_verify_input():
 
 # Read input from filename defined in cl_opt
 # returns result as a list of strings
-def input(cl_opt):
+def read_input(cl_opt):
     data = ""
     with open(cl_opt[INPUT_FILE].name) as f:
         data = f.readlines()
@@ -72,7 +72,7 @@ def input(cl_opt):
 
 # res = results to be printed
 # writes result to filename specified in cl_opt
-def output(res, cl_opt):
+def write_output(res, cl_opt):
     if cl_opt[OUTPUT_FILE] is not None:
         print(res, file=cl_opt[OUTPUT_FILE])
     else:

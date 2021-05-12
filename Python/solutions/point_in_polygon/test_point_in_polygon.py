@@ -1,14 +1,21 @@
 import unittest
 
+# Own
+#! Why doesn't pylance resolve in the same way as my interpreter?!?
 from solutions.point_in_polygon.solution import point_in_polygon
+from src.utils.generate_test_data import generate_test_data
+from src.utils.MyTestCase import MyTestCase
 
-# This naming comvention really sucks, should do something about that...
-class TestSolution(unittest.TestCase):
+class test_point_in_polygon(MyTestCase):
+
+    def __init__(self, methodName: str) -> None:
+        self.SOLUTION_NAME = 'point_in_polygon'
+
+    def setUp(self) -> None:
+        return super().setUp()
     
-    #TODO Read cases and answers from generate_test_data
-    def test_point_in_polygon(self, cases, answers):
-        for case, answer in zip(cases, answers):
-            self.assertMultiLineEqual(point_in_polygon(case), answer)
+    def test_solution(self):
+        return super().test_solution()
 
 if __name__ == '__main__':
     unittest.main()
