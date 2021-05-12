@@ -1,7 +1,7 @@
 import unittest
 
 # Own
-from solutions.point_in_polygon import generate_test_data
+from testing.generate_test_data import generate_test_data
 
 # General testcase
 # Must be subclassed with a SOLUTION_NAME matching a callable function in globals()

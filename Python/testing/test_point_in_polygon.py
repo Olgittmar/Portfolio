@@ -1,10 +1,9 @@
 import unittest
 
 # Own
-#! Why doesn't pylance resolve in the same way as my interpreter?!?
 from solutions.point_in_polygon.solution import point_in_polygon
-from src.utils.generate_test_data import generate_test_data
-from src.utils.MyTestCase import MyTestCase
+from testing.generate_test_data import generate_test_data
+from testing.MyTestCase import MyTestCase
 
 class test_point_in_polygon(MyTestCase):
 
@@ -16,6 +15,3 @@ class test_point_in_polygon(MyTestCase):
     
     def test_solution(self):
         return super().test_solution()
-
-if __name__ == '__main__':
-    unittest.main()

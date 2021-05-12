@@ -132,7 +132,3 @@ class TestCoordinates(unittest.TestCase):
         self.assertFalse( inv_line.to_right_or_includes( self.data[CLOSE_RIGHT] ) )
         self.assertFalse( inv_line.to_right_or_includes( self.data[BEFORE] ) )
         self.assertFalse( inv_line.to_right_or_includes( self.data[AFTER] ) )
-
-
-if __name__ == '__main__':
-    unittest.main()
