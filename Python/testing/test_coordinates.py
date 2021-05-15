@@ -1,6 +1,7 @@
 import unittest
 
 from src.utils.coordinates import *
+# Don't mind the clutter here, gonna rework this test class
 
 # Keywords
 START = 'start'

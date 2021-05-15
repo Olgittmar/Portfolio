@@ -76,7 +76,6 @@ class Line:
             return False
         if not self.in_y_range( p.y ):
             return False
-        print( self.line_y(p.x) )
         if p.y == self.line_y(p.x):
             return True
         return False

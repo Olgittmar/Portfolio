@@ -39,7 +39,6 @@ def point_in_polygon(data):
     for i in range(case):
         for point in test_points[i]:
             res_ = is_inside(polygons[i], point)
-            print(res_)
             _ret += res_ + '\n'
             # _ret += is_inside(polygons[i], point) + '\n'
     return _ret
@@ -52,12 +51,10 @@ def is_inside( polygon, p ):
     # Check if the line intersects the line between the test_point and the horizontal beam to +infinity
     # If the number of intersections are even, the point must either be outside the polygon,
     # or the vertice lies on the beam.
-    print("Point: (%s,%s)" % (p.x, p.y) )
     while i < len(polygon):
         # The last line should end at the first vertice again.
         line_ = Line( polygon[i], ( polygon[i+1] if i+1 < len(polygon) else polygon[0] ) )
         i += 1
-        print( "Line: (%s,%s) to (%s,%s)" % (line_.start.x, line_.start.y, line_.end.x, line_.end.y) )
         if line_.includes(p):
             return 'on'
         if not line_.in_y_range(p.y):
