@@ -60,7 +60,7 @@ def is_inside( polygon, p ):
         if not line_.in_y_range(p.y):
             # Will the compiler figure out we already tested this?
             continue
-        if not line_.to_right_or_includes(p):
+        if not line_.is_to_right_of_or_might_include(p):
             continue
         num_intersections += 1
     if num_intersections % 2 == 0:

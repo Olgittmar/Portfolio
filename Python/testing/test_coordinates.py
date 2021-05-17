@@ -1,59 +1,54 @@
 import unittest
 
 from src.utils.coordinates import *
-# Don't mind the clutter here, gonna rework this test class
 
-# Keywords
-START = 'start'
-END = 'end'
-LINE = 'line'
-INV_LINE = 'inv_line'
-LEFT = 'left'
-RIGHT = 'right'
-UP = 'up'
-DOWN = 'down'
-CLOSE_LEFT = 'close_left'
-CLOSE_RIGHT = 'close_right'
-CLOSE_UP = 'close_up'
-CLOSE_DOWN = 'close_down'
-BEFORE = 'before'
-AFTER = 'after'
 
 class TestCoordinates(unittest.TestCase):
-    data = {}
+    DEFAULT_START = (-4, 5)
+    DEFAULT_END = (10, 10)
 
-    def setUp(self):
-        self.data[START] = Point(0, 5) # botton left
-        self.data[END] = Point(20, 0) # top right
-        self.data[LINE] = Line( self.data[START], self.data[END] ) # The test_line
-        # Different orientation of lines
-        self.data[INV_LINE] = Line( self.data[END], self.data[START] )
-
+    def __init__(self, methodName: str, start: tuple[int, int] = DEFAULT_START, end: tuple[int,int] = DEFAULT_END) -> None:
+        # Init the start and end of the line to test
+        self.START = Point.from_tuple(start)
+        self.END = Point.from_tuple(end)
+        # The line to test
+        self._line = Line( self.START, self.END )
+        # Inverse direction of line
+        self._inv_line = Line( self.END, self.START )
         # to the left of midpoint
-        self.data[LEFT] = Point( min(self.data[START].x, self.data[END].x) - 1, self.data[LINE].v_midpoint() )
+        self.LEFT = Point( min(self.START.x, self.END.x) - 1, self._line.v_midpoint() )
         # to the right of midpoint
-        self.data[RIGHT] = Point( max(self.data[START].x, self.data[END].x) + 1, self.data[LINE].v_midpoint() )
+        self.RIGHT = Point( max(self.START.x, self.END.x) + 1, self._line.v_midpoint() )
         # above midpoint
-        self.data[UP] = Point( self.data[LINE].h_midpoint(), max( self.data[START].y, self.data[END].y) + 1 )
+        self.UP = Point( self._line.h_midpoint(), max( self.START.y, self.END.y) + 1 )
         # below midpoint
-        self.data[DOWN] = Point( self.data[LINE].h_midpoint(), min( self.data[START].y, self.data[END].y ) - 1 )
+        self.DOWN = Point( self._line.h_midpoint(), min( self.START.y, self.END.y ) - 1 )
         # to left of x-range
-        self.data[CLOSE_LEFT] = Point( self.data[LINE].h_midpoint() - 1, self.data[LINE].v_midpoint() )
+        self.CLOSE_LEFT = Point( self._line.h_midpoint() - 1, self._line.v_midpoint() )
         # to right of x-range
-        self.data[CLOSE_RIGHT] = Point( self.data[LINE].h_midpoint() + 1, self.data[LINE].v_midpoint() )
+        self.CLOSE_RIGHT = Point( self._line.h_midpoint() + 1, self._line.v_midpoint() )
         # above y-range
-        self.data[CLOSE_UP] = Point( self.data[LINE].h_midpoint(), self.data[LINE].v_midpoint() + 1 )
+        self.CLOSE_UP = Point( self._line.h_midpoint(), self._line.v_midpoint() + 1 )
         # below y-range
-        self.data[CLOSE_DOWN] = Point( self.data[LINE].h_midpoint(), self.data[LINE].v_midpoint() - 1 )
-        # along line, but outside range
-        self.data[BEFORE] = Point(
-            self.data[START].x + (1 if self.data[START].x > 0 else -1),
-            self.data[START].y + (1 if self.data[START].y > 0 else -1) )
-        self.data[AFTER] = Point(
-            self.data[END].x + (1 if self.data[END].x > 0 else -1),
-            self.data[END].y + (1 if self.data[END].y > 0 else -1) )
+        self.CLOSE_DOWN = Point( self._line.h_midpoint(), self._line.v_midpoint() - 1 )
+        # Along line, but outside range. Relies on x_at(y) and y_at(x) to work correctly
+        #! Note that for the test below we use the leftmost point as Before, and the rightmost point as AFTER
+        if self._line.slope_quadrant() in [1,4]:
+            self.BEFORE = Point( self.START.x - 1, self._line.y_at( self.START.x - 1 ) )
+            self.AFTER = Point( self.END.x + 1, self._line.y_at( self.END.x + 1 ) )
+        if self._line.slope_quadrant() in [2,3]:
+            self.BEFORE = Point( self.END.x - 1, self._line.y_at( self.END.x - 1 ) )
+            self.AFTER = Point( self.START.x + 1, self._line.y_at( self.START.x + 1 ) )
+        if self._line.slope_quadrant() == 0:
+            if self._line.slope() == 0:
+                self.BEFORE = Point( self.START.x - 1, self.START.y )
+                self.AFTER = Point( self.END.x + 1, self.START.y )
+            else:
+                self.BEFORE = Point( self.START.x, self.START.y - 1 )
+                self.AFTER = Point( self.END.x, self.START.y + 1 )
+        super().__init__(methodName=methodName)
 
-    def test_point(self):
+    def test_point_init(self):
         self.assertNotEqual( Point(5,6), Point(4,5) )
         self.assertEqual( Point(5,6), Point(5,6) )
         self.assertEqual( Point(5,6), Point(5,6) )
@@ -61,75 +56,225 @@ class TestCoordinates(unittest.TestCase):
         self.assertEqual( Point(5,6), Point.from_str('5 6'))
         self.assertEqual( Point(-5,6), Point.from_str('-5 6'))
         self.assertEqual( Point(5,-6), Point.from_str('5 -6'))
-        # Class is really basic, but should probably test for invalid inits as well...
+        # Should work I think, as long as there is a ' ' in between the coordinates and
+        # the substrings are convertible to ints
+        self.assertEqual( Point(5,-6), Point.from_str('5\n -6'))
+        self.assertEqual( Point(0, 1), Point.from_tuple((0, 1)))
+        #TODO Class is really basic, but should probably test for invalid inits as well...
 
     def test_line_init(self):
-        self.assertEqual( self.data[LINE].start, self.data[START] )
-        self.assertEqual( self.data[LINE].end, self.data[END] )
-        self.assertEqual( self.data[INV_LINE].start, self.data[END] )
-        self.assertEqual( self.data[INV_LINE].end, self.data[START] )
+        self.assertEqual( self._line.start, self.START )
+        self.assertEqual( self._line.end, self.END )
+        self.assertEqual( self._inv_line.start, self.END )
+        self.assertEqual( self._inv_line.end, self.START )
+        #? Unsure what tests should be included in init
+    
+    def test_line_x_at(self):
+        self.assertTrue( self._line.x_at( self.START.y ) == self.START.x )
+        self.assertTrue( self._line.x_at( self.START.y ) == self.START.x )
+        self.assertTrue( self._line.x_at( self.END.y ) == self.END.x )
+        self.assertTrue( self._line.x_at( self.END.y ) == self.END.x )
+        self.assertTrue( self._line.h_midpoint() == self._line.x_at( self._line.v_midpoint() ) )
 
-    def test_line_in_x_range(self):
-        line = self.data[LINE]
-        self.assertTrue( line.in_x_range( self.data[START].x ) )
-        self.assertTrue( line.in_x_range( self.data[END].x ) )
-        self.assertTrue( line.in_x_range( self.data[START] ) )
-        self.assertTrue( line.in_x_range( self.data[END] ) )
+    def test_line_y_at(self):
+        self.assertTrue( self._line.y_at( self.START.x ) == self.START.y )
+        self.assertTrue( self._line.y_at( self.START.x ) == self.START.y )
+        self.assertTrue( self._line.y_at( self.END.x ) == self.END.y )
+        self.assertTrue( self._line.y_at( self.END.x ) == self.END.y )
+        self.assertTrue( self._line.v_midpoint() == self._line.y_at( self._line.h_midpoint() ) )
 
-        self.assertTrue( line.in_x_range(  self.data[UP] ) )
-        self.assertTrue( line.in_x_range(  self.data[DOWN] ) )
-        self.assertFalse( line.in_x_range( self.data[LEFT] ) )
-        self.assertFalse( line.in_x_range( self.data[RIGHT] ) )
-        self.assertTrue( line.in_x_range(  self.data[CLOSE_UP] ) )
-        self.assertTrue( line.in_x_range(  self.data[CLOSE_DOWN] ) )
-        self.assertTrue( line.in_x_range(  self.data[CLOSE_LEFT] ) )
-        self.assertTrue( line.in_x_range(  self.data[CLOSE_RIGHT] ) )
-        self.assertFalse( line.in_x_range( self.data[BEFORE] ) )
-        self.assertFalse( line.in_x_range( self.data[AFTER] ) )
+    def test_line_start(self):
+        self.assertTrue( self._line.in_x_range( self.START.x ) )
+        self.assertTrue( self._line.in_x_range( self.START ) )
+        self.assertTrue( self._inv_line.in_x_range( self.START.x ) )
+        self.assertTrue( self._inv_line.in_x_range( self.START ) )
 
-    def test_line_in_y_range(self):
-        line = self.data[LINE]
-        self.assertTrue( line.in_y_range( self.data[START].y ) )
-        self.assertTrue( line.in_y_range( self.data[END].y ) )
-        self.assertTrue( line.in_y_range( self.data[START] ) )
-        self.assertTrue( line.in_y_range( self.data[END] ) )
+        self.assertTrue( self._line.in_y_range( self.START.y ) )
+        self.assertTrue( self._line.in_y_range( self.START ) )
+        self.assertTrue( self._inv_line.in_y_range( self.START.y ) )
+        self.assertTrue( self._inv_line.in_y_range( self.START ) )
+        
+        self.assertTrue( self._line.is_to_right_of_or_might_include(  self.START ) )
+        self.assertTrue( self._inv_line.is_to_right_of_or_might_include(  self.START ) )
 
-        self.assertFalse( line.in_y_range( self.data[UP] ) )
-        self.assertFalse( line.in_y_range( self.data[DOWN] ) )
-        self.assertTrue( line.in_y_range(  self.data[LEFT] ) )
-        self.assertTrue( line.in_y_range(  self.data[RIGHT] ) )
-        self.assertTrue( line.in_y_range(  self.data[CLOSE_UP] ) )
-        self.assertTrue( line.in_y_range(  self.data[CLOSE_DOWN] ) )
-        self.assertTrue( line.in_y_range(  self.data[CLOSE_LEFT] ) )
-        self.assertTrue( line.in_y_range(  self.data[CLOSE_RIGHT] ) )
-        self.assertFalse( line.in_y_range( self.data[BEFORE] ) )
-        self.assertFalse( line.in_y_range( self.data[AFTER] ) )
+    def test_line_end(self):
+        self.assertTrue( self._line.in_x_range( self.END.x ) )
+        self.assertTrue( self._line.in_x_range( self.END ) )
+        self.assertTrue( self._inv_line.in_x_range( self.END.x ) )
+        self.assertTrue( self._inv_line.in_x_range( self.END ) )
 
-    def test_line_to_right_or_includes(self):
-        line = self.data[LINE]
-        self.assertTrue( line.to_right_or_includes(  self.data[START] ) )
-        self.assertTrue( line.to_right_or_includes(  self.data[END] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[UP] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[DOWN] ) )
-        self.assertTrue( line.to_right_or_includes(  self.data[LEFT] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[RIGHT] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[CLOSE_UP] ) )
-        self.assertTrue( line.to_right_or_includes(  self.data[CLOSE_DOWN] ) )
-        self.assertTrue( line.to_right_or_includes(  self.data[CLOSE_LEFT] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[CLOSE_RIGHT] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[BEFORE] ) )
-        self.assertFalse( line.to_right_or_includes( self.data[AFTER] ) )
+        self.assertTrue( self._line.in_y_range( self.END.y ) )
+        self.assertTrue( self._line.in_y_range( self.END ) )
+        self.assertTrue( self._inv_line.in_y_range( self.END.y ) )
+        self.assertTrue( self._inv_line.in_y_range( self.END ) )
 
-        inv_line = self.data[INV_LINE]
-        self.assertTrue( inv_line.to_right_or_includes(  self.data[START] ) )
-        self.assertTrue( inv_line.to_right_or_includes(  self.data[END] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[UP] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[DOWN] ) )
-        self.assertTrue( inv_line.to_right_or_includes(  self.data[LEFT] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[RIGHT] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[CLOSE_UP] ) )
-        self.assertTrue( inv_line.to_right_or_includes(  self.data[CLOSE_DOWN] ) )
-        self.assertTrue( inv_line.to_right_or_includes(  self.data[CLOSE_LEFT] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[CLOSE_RIGHT] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[BEFORE] ) )
-        self.assertFalse( inv_line.to_right_or_includes( self.data[AFTER] ) )
+        self.assertTrue( self._line.is_to_right_of_or_might_include(  self.END ) )
+        self.assertTrue( self._inv_line.is_to_right_of_or_might_include(  self.END ) )
+
+    def test_line_up(self):
+        self.assertTrue( self._line.in_x_range(  self.UP ) )
+        self.assertTrue( self._inv_line.in_x_range(  self.UP ) )
+
+        self.assertFalse( self._line.in_y_range( self.UP ) )
+        self.assertFalse( self._inv_line.in_y_range( self.UP ) )
+
+        self.assertFalse( self._line.is_to_right_of_or_might_include( self.UP ) )
+        self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.UP ) )
+
+    def test_line_down(self):
+        self.assertTrue( self._line.in_x_range(  self.DOWN ) )
+        self.assertTrue( self._inv_line.in_x_range(  self.DOWN ) )
+
+        self.assertFalse( self._line.in_y_range( self.DOWN ) )
+        self.assertFalse( self._inv_line.in_y_range( self.DOWN ) )
+
+        self.assertFalse( self._line.is_to_right_of_or_might_include( self.DOWN ) )
+        self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.DOWN ) )
+
+    def test_line_left(self):
+        self.assertFalse( self._line.in_x_range( self.LEFT ) )
+        self.assertFalse( self._inv_line.in_x_range( self.LEFT ) )
+
+        self.assertTrue( self._line.in_y_range(  self.LEFT ) )
+        self.assertTrue( self._inv_line.in_y_range(  self.LEFT ) )
+        
+        self.assertTrue( self._line.is_to_right_of_or_might_include(  self.LEFT ) )
+        self.assertTrue( self._inv_line.is_to_right_of_or_might_include(  self.LEFT ) )
+
+    def test_line_right(self):
+        self.assertFalse( self._line.in_x_range( self.RIGHT ) )
+        self.assertFalse( self._inv_line.in_x_range( self.RIGHT ) )
+
+        self.assertTrue( self._line.in_y_range(  self.RIGHT ) )
+        self.assertTrue( self._inv_line.in_y_range(  self.RIGHT ) )
+        
+        self.assertFalse( self._line.is_to_right_of_or_might_include( self.RIGHT ) )
+        self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.RIGHT ) )
+
+    # This got complicated...
+    def test_line_close_up(self):
+        self.assertTrue( self._line.in_x_range(  self.CLOSE_UP ) )
+        self.assertTrue( self._inv_line.in_x_range(  self.CLOSE_UP ) )
+        if abs( self._line.start.y - self._line.end.y ) >= 2:
+            self.assertTrue( self._line.in_y_range(  self.CLOSE_UP ) )
+            self.assertTrue( self._inv_line.in_y_range(  self.CLOSE_UP ) )
+        else:
+            self.assertFalse( self._line.in_y_range(  self.CLOSE_UP ) )
+            self.assertFalse( self._inv_line.in_y_range(  self.CLOSE_UP ) )
+        if self._line.slope_quadrant() in [1,4]:
+            self.assertTrue( self._line.is_to_right_of_or_might_include(  self.CLOSE_UP ) )
+            self.assertTrue( self._inv_line.is_to_right_of_or_might_include(  self.CLOSE_UP ) )
+        elif self._line.slope_quadrant() in [2,3]:
+            self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+            self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+        elif self._line.slope_quadrant() == 0:
+            if self._line.slope() == 0:
+                self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+                self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+            else:
+                if self._line.in_y_range(self.CLOSE_UP):
+                    self.assertTrue( self._line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+                    self.assertTrue( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+                else:
+                    self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+                    self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_UP ) )
+
+    def test_line_close_down(self):
+        self.assertTrue( self._line.in_x_range(  self.CLOSE_DOWN ) )
+        self.assertTrue( self._inv_line.in_x_range(  self.CLOSE_DOWN ) )
+        if abs( self._line.start.y - self._line.end.y ) >= 2:
+            self.assertTrue( self._line.in_y_range(  self.CLOSE_DOWN ) )
+            self.assertTrue( self._inv_line.in_y_range(  self.CLOSE_DOWN ) )
+        else:
+            self.assertFalse( self._line.in_y_range(  self.CLOSE_DOWN ) )
+            self.assertFalse( self._inv_line.in_y_range(  self.CLOSE_DOWN ) )
+        if self._line.slope_quadrant() in [1,4]:
+            self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+            self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+        elif self._line.slope_quadrant() in [2,3]:
+            self.assertTrue( self._line.is_to_right_of_or_might_include(  self.CLOSE_DOWN ) )
+            self.assertTrue( self._inv_line.is_to_right_of_or_might_include(  self.CLOSE_DOWN ) )
+        elif self._line.slope_quadrant() == 0:
+            if self._line.slope() == 0:
+                self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+                self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+            else:
+                if self._line.in_y_range( self.CLOSE_DOWN ):
+                    self.assertTrue( self._line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+                    self.assertTrue( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+                else:
+                    self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+                    self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_DOWN ) )
+
+
+    def test_line_close_left(self):
+        if abs( self._line.start.x - self._line.end.x ) >= 2:
+            self.assertTrue( self._line.in_x_range(  self.CLOSE_LEFT ) )
+            self.assertTrue( self._inv_line.in_x_range(  self.CLOSE_LEFT ) )
+            self.assertTrue( self._line.is_to_right_of_or_might_include(  self.CLOSE_LEFT ) )
+            self.assertTrue( self._inv_line.is_to_right_of_or_might_include(  self.CLOSE_LEFT ) )
+        else:
+            self.assertFalse( self._line.in_x_range(  self.CLOSE_LEFT ) )
+            self.assertFalse( self._inv_line.in_x_range(  self.CLOSE_LEFT ) )
+            self.assertFalse( self._line.is_to_right_of_or_might_include(  self.CLOSE_LEFT ) )
+            self.assertFalse( self._inv_line.is_to_right_of_or_might_include(  self.CLOSE_LEFT ) )
+        self.assertTrue( self._line.in_y_range(  self.CLOSE_LEFT ) )
+        self.assertTrue( self._inv_line.in_y_range(  self.CLOSE_LEFT ) )
+
+
+    def test_line_close_right(self):
+        if abs( self._line.start.x - self._line.end.x) >= 2:
+            self.assertTrue( self._line.in_x_range(  self.CLOSE_RIGHT ) )
+            self.assertTrue( self._inv_line.in_x_range(  self.CLOSE_RIGHT ) )
+        else:
+            self.assertFalse( self._line.in_x_range(  self.CLOSE_RIGHT ) )
+            self.assertFalse( self._inv_line.in_x_range(  self.CLOSE_RIGHT ) )
+        self.assertTrue( self._line.in_y_range(  self.CLOSE_RIGHT ) )
+        self.assertTrue( self._inv_line.in_y_range(  self.CLOSE_RIGHT ) )
+        self.assertFalse( self._line.is_to_right_of_or_might_include( self.CLOSE_RIGHT ) )
+        self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.CLOSE_RIGHT ) )            
+
+    def test_line_before(self):
+        self.assertFalse( self._line.in_x_range( self.BEFORE ) )
+        self.assertFalse( self._inv_line.in_x_range( self.BEFORE ) )
+
+        self.assertFalse( self._line.in_y_range( self.BEFORE ) )
+        self.assertFalse( self._inv_line.in_y_range( self.BEFORE ) )
+
+        if (self._line.slope_quadrant() == 0 and
+            self._line.slope() == 0 ):
+            self.assertTrue( self._line.is_to_right_of_or_might_include( self.BEFORE ) )
+            self.assertTrue( self._inv_line.is_to_right_of_or_might_include( self.BEFORE ) )
+        else:
+            self.assertFalse( self._line.is_to_right_of_or_might_include( self.BEFORE ) )
+            self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.BEFORE ) )
+
+    def test_line_after(self):
+        self.assertFalse( self._line.in_x_range( self.AFTER ) )
+        self.assertFalse( self._inv_line.in_x_range( self.AFTER ) )
+
+        self.assertFalse( self._line.in_y_range( self.AFTER ) )
+        self.assertFalse( self._inv_line.in_y_range( self.AFTER ) )
+
+        self.assertFalse( self._line.is_to_right_of_or_might_include( self.AFTER ) )
+        self.assertFalse( self._inv_line.is_to_right_of_or_might_include( self.AFTER ) )
+    
+    def test_all_points_on_line(self):
+        #! Overkill test
+        # Check is_to_right_of_or_might_include for every triad of points on, to the left and to the right of the line
+        diff = int(self._line.start.x - self._line.end.x)
+        for i in range(diff):
+            point_on_line = Point(self._line.start.x + i, self._line.start.y + self._line.slope*i)
+            point_to_right = Point(self._line.start.x + i, self._line.start.y + self._line.slope*i)
+            point_to_left = Point(self._line.start.x + i, self._line.start.y + self._line.slope*i)
+            self.assertTrue( self._line.is_to_right_of_or_might_include( point_on_line ) )
+            self.assertTrue( self._line.includes( point_on_line ) )
+            self.assertFalse( self._line.includes( point_to_right ) )
+            self.assertFalse( self._line.includes( point_to_left ) )
+            # is_to_right_of_or_might_include refers to that the line is to the right of the given point
+            self.assertTrue( self._line.is_to_right_of_or_might_include( point_to_left ) )
+            self.assertFalse( self._line.is_to_right_of_or_might_include( point_to_right ) )
+            # Check the inverted line to be safe
+            self.assertTrue( self._inv_line.is_to_right_of_or_might_include( point_on_line ) )
+            self.assertTrue( self._inv_line.is_to_right_of_or_might_include( point_to_left ) )
+            self.assertFalse( self._inv_line.is_to_right_of_or_might_include( point_to_right ) )
