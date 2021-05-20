@@ -13,16 +13,31 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CONAN_CMAKE_GENERATOR Ninja)
 set(CMAKE_DEBUG_POSTFIX d)
+# Might be fun to try...
+set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
 
-if( EXISTS ${BUILD_DIR}/conanbuildinfo.cmake )
-    include(${BUILD_DIR}/conanbuildinfo.cmake )
+if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+    if( EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake )
+        include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake )
+    else()
+        message(FATAL_ERROR "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake not found.")
+    endif()
+elseif( CMAKE_BUILD_TYPE STREQUAL "Release" )
+    if( EXISTS ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake )
+        include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake )
+    else()
+    message(FATAL_ERROR "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake not found.")
+    endif()
 else()
-    include(${BUILD_DIR}/conanbuildinfo.cmake)
+    message("Unknown build type ${CMAKE_BUILD_TYPE}")
 endif()
 
-
-
 conan_basic_setup()
+if(SANITIZER)
+    if(SANITIZER MATCHES "(Address)")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+    endif()
+endif()
 
 add_executable( CPlusPlus
 "main.cpp"
@@ -35,26 +50,21 @@ conan_target_link_libraries( CPlusPlus )
 add_subdirectory(
     "src"
     )
-    
-#! Not sure...
+
 target_include_directories(CPlusPlus PUBLIC
     "${PROJECT_BINARY_DIR}"
 )
 
-if( CMAKE_BUILD_TYPE EQUAL Debug)
-    install( TARGETS CPlusPlus
-    CONFIGURATIONS
-    Debug RUNTIME DESTINATION install/debug/bin
-    )
-elseif( CMAKE_BUILD_TYPE EQUAL Release)
-    install( TARGETS CPlusPlus
-        CONFIGURATIONS Release
-            RUNTIME DESTINATION install/release/bin
-            LIBRARY DESTINATION install/release/lib
-    )
-else()
-    message("Installation folder not found!")
-endif()
+install( TARGETS CPlusPlus
+    CONFIGURATIONS Debug
+    RUNTIME DESTINATION ${CMAKE_BINARY_DIR}/../../install/debug/bin
+    LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/../../install/debug/lib
+)
+install( TARGETS CPlusPlus
+    CONFIGURATIONS Release
+    RUNTIME DESTINATION ${CMAKE_BINARY_DIR}/../../install/release/bin
+    LIBRARY DESTINATION ${CMAKE_BINARY_DIR}/../../install/release/lib
+)
 
 #TODO Add more extensive testing
 enable_testing()
