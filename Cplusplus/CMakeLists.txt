@@ -6,6 +6,8 @@ configure_file( CPlusPlusConfig.h.in CPlusPlusConfig.h )
 # c++ 11 is equally fine, I just enjoy the QoL improvements
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+# convert relative paths to absolute in target_sources()
+cmake_policy(SET CMP0076 NEW)
 
 # set(CMAKE_AUTOMOC ON)
 # set(CMAKE_AUTORCC ON)
@@ -40,16 +42,16 @@ if(SANITIZER)
 endif()
 
 add_executable( CPlusPlus
-"main.cpp"
+    "main.cpp"
+)
+
+add_subdirectory(
+    src
 )
 
 set_target_properties(CPlusPlus PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-
 conan_target_link_libraries( CPlusPlus )
 
-add_subdirectory(
-    "src"
-    )
 
 target_include_directories(CPlusPlus PUBLIC
     "${PROJECT_BINARY_DIR}"

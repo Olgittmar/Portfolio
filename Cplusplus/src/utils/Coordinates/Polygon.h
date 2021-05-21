@@ -19,13 +19,14 @@ class Polygon {
     Polygon(const string str);
     Polygon(const vector<Point> points);
 
-    // Returns true if the point p is inside this polygon
-    bool surrounds( const Point p ) const;
     // Classifies the point p and returns a string with the corresponding classification,
     // "out" if p is outside the polygon
     // "in" if p is inside the polygon
     // "on" if p is on one or more of the lines between _vertices
     string classify( const Point p ) const;
+
+    inline void addPoint(const Point& p) { _vertices.push_back( p ); };
+    inline void clear() { _vertices.clear(); };
 
   protected:
   private:

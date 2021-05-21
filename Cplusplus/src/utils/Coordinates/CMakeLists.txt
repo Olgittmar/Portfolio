@@ -1,4 +1,4 @@
-target_sources( CPlusPlus PRIVATE
+target_sources(CPlusPlus PRIVATE
     Point.h
     Line.h
     Polygon.h

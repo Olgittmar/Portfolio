@@ -1,1 +1,4 @@
-add_subdirectory(Coordinates)
+add_subdirectory(
+    Coordinates
+    StringUtils
+)

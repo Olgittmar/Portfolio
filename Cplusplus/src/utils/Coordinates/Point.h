@@ -20,6 +20,10 @@ class Point {
     Point( const string str );
     Point( const pair<int,int> coords );
 
+    inline bool operator==(const Point& other) const {
+        return (this->_x == other._x && this->_y == other._y);
+    };
+
     static vector<Point> str_to_points( const string str, const char delimiter, const char subDelimiter );
 
     int x() const;
