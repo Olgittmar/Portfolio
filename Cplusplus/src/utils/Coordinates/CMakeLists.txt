@@ -1,4 +1,4 @@
-target_sources(CPlusPlus PRIVATE
+add_library(Coordinates STATIC
     Point.h
     Line.h
     Polygon.h

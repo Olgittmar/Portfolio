@@ -1,5 +1,7 @@
 #include "PointInPolygon.h"
 
+namespace PointInPolygon {
+
 string
 PointInPolygon( istream& in, ostream& out)
 {
@@ -26,6 +28,7 @@ PointInPolygon( istream& in, ostream& out)
             }
         }
     }
+    out << ret;
     return ret;
 }
 
@@ -39,4 +42,6 @@ readPolygon( istream& in, const int numLines, utils::Polygon& out ) {
         p = utils::Point( line );
         out.addPoint( p );
     }
+}
+
 }

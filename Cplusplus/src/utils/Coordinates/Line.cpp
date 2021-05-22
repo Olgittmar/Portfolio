@@ -53,9 +53,6 @@ Line::invSlope() const
 int
 Line::slopeQuadrant() const
 {
-    if ( !isAngled() ) {
-        return 0;
-    }
     if ( dx() > 0 && dy() > 0 ) {
         return 1;
     }
@@ -68,6 +65,9 @@ Line::slopeQuadrant() const
     if ( dx() > 0 && dy() < 0 ) {
         return 4;
     }
+    // If we got here then either dx == 0 or dy == 0,
+    // as such the slopeQuadrant is undefined.
+    return 0;
 }
 
 bool

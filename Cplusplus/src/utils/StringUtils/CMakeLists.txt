@@ -1,3 +1,5 @@
-target_sources(CPlusPlus PRIVATE
+add_library( StringUtils STATIC
     StringUtils.h
+    
+    StringUtils.cpp
 )
