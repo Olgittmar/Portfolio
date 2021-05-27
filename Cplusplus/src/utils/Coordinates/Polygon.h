@@ -27,6 +27,7 @@ class Polygon {
 
     inline void addPoint(const Point& p) { _vertices.push_back( p ); };
     inline void clear() { _vertices.clear(); };
+    static void readPolygon( istream& in, const int numLines, utils::Polygon& out );
 
   protected:
   private:

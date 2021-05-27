@@ -3,18 +3,11 @@
 // Std
 #include <string>
 #include <iostream>
+#include <fstream>
 
-// Own
-#include <Coordinates/Polygon.h>
+namespace Solutions {
 
-using namespace std;
-
-namespace PointInPolygon {
-
-string
-PointInPolygon( istream& in, ostream& out);
-
-void
-readPolygon( istream& in, const int numLines, utils::Polygon& out );
+std::string
+PointInPolygon( std::istream& in, std::ostream& out);
 
 }

@@ -1,9 +1,3 @@
-add_subdirectory(
-    utils
-    solutions
-)
-
-# Since solutions are not built as libraries we need to add the directory to includes
-target_include_directories(Utils PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/solutions"
-)
+add_subdirectory( utils )
+#! add_subdirectory can only a single directory, ffs CMake should output an error or something
+add_subdirectory( solutions )

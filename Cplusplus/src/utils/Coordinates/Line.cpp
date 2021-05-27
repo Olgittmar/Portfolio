@@ -117,4 +117,55 @@ Line::xAt( const int y ) const
     return (_start.x() + (y - _start.y())*invSlope() );
 }
 
+
+bool
+Line::intersects( const Point p ) const
+{
+    if( !inVRange( p.y() ) ){
+        return false;
+    }
+    if( !inHRange( p.x() ) ){
+        return ( p.x() < min( _start.x(), _end.x() ) );
+    } else {
+        switch( slopeQuadrant() ){
+            case 1:
+            case 3:
+            {
+                return p.y() >= yAt( p.x() );
+            }
+            break;
+            case 2:
+            case 4:
+            {
+                return p.y() <= yAt( p.x() );
+            }
+            break;
+            case 0: {
+                // We already know that we are within range.
+                return p.x() <= max( _start.x(), _end.x() );
+            }
+            break;
+            default:
+                throw exception("Unexpected quadrant somehow ecnountered!");
+        }
+    }
+}
+
+bool
+Line::includes( const Point p ) const
+{
+    if( !inHRange( p.x() ) ){
+        return false;
+    }
+    if( !inVRange( p.y() ) ){
+        return false;
+    }
+    if( yAt( p.x() ) == p.y() ){
+        return true;
+    }
+    // Potentially we could fail the above due to rounding error test if dx is very large
+    // So let's test the other way around as well, otherwise we'll have to say it's not included.
+    return xAt( p.y() ) == p.x();
+}
+
 } // namespace utils

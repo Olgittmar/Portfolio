@@ -23,68 +23,114 @@
 # You might see comments that starts with "TODO", "!", "?" or similar,
 # this is because VScode has a neat way of keeping track of issues and todo-lists through comments.
 # --------------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.13) # Using target_sources in the pretty way requires 3.13.0 or later
 project(CPlusPlus VERSION 0.1.0)
 configure_file(CPlusPlusConfig.h.in CPlusPlusConfig.h)
 
+# Probably shouldn't specify these but I want to start out with what I'm familiar with.
 # c++ 11 is equally fine, I just enjoy discovering the QoL improvements
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_C_COMPILER clang)
 set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+# Qt Stuff, not yet implemented
 # set(CMAKE_AUTOMOC ON)
 # set(CMAKE_AUTORCC ON)
 # set(CMAKE_AUTOUIC ON)
+
+# Need compile_commands for VSCode's intellisense to play nice with Ninja
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# For some reason I can't seem to be able to specify Ninja as generator otherwise,
+# and it ends up using Visual studio. To avoid this I just specify Ninja as generator here instead.
 set(CONAN_CMAKE_GENERATOR Ninja)
 set(CMAKE_DEBUG_POSTFIX d)
-# Haven't used a sanitizer before, might be fun to try...
-set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
 
-# CMAKE_BUILD_TYPE is apparently compiler dependent, and should never be used in if statements
-#TODO Found a more elegant way to structure using generator expressions, but one thing at a time.
+# Options
+option(ENABLE_TESTING "Enable building of test" FALSE )
+option(ENABLE_SANITIZER "Use compiler sanitizer" FALSE )
+option(ENABLE_CPPCHECK "Enable testing with cppcheck" FALSE )
+option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" FALSE)
+option(DETAILED_BUILD "Verbose building" FALSE ) # Not yet implemented
+
+# Binary dir should be the build folder corresponding to build type, eg "CPlusPlus/build/debug"
 include( ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake )
-
 conan_basic_setup()
 
-#TODO Figure out more extensively how sanitizers are used
-if(SANITIZER)
-    if(SANITIZER MATCHES "(Address)")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+# Recount to user what we are doing
+message("=========================================")
+message("\t\t\tSummary")
+message("=========================================")
+message("Build type:       \t ${CMAKE_BUILD_TYPE}")
+message("Compiler:         \t ${CMAKE_CXX_COMPILER_ID}")
+message("Version:          \t ${PROJECT_VERSION}")
+message("Install prefix:   \t ${CMAKE_INSTALL_PREFIX}")
+message("-----------------------------------------")
+message("Sanitizers:       \t ${ENABLE_SANITIZER}")
+message("Testing enabled:  \t ${ENABLE_TESTING}")
+message("Clang-tidy:       \t ${ENABLE_CLANG_TIDY}")
+message("Cppcheck:         \t ${ENABLE_CPPCHECK}")
+message("Detailed build:   \t ${DETAILED_BUILD}")
+message("-----------------------------------------")
+
+# ---------------------------------------------------------------------
+if(DETAILED_BUILD)
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        add_compile_options("-v")
     endif()
 endif()
 
-add_executable(CPlusPlus
-    "main.cpp"
-)
+if(ENABLE_SANITIZER)
+    set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
+    if(SANITIZER)
+        if(SANITIZER MATCHES "(Address)")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+        endif()
+    endif()
+endif()
 
-add_subdirectory(
-    src
-)
+if(ENABLE_CPPCHECK)
+    find_program(CPPCHECK cppcheck)
+    if(CPPCHECK)
+        set(CMAKE_CXX_CPPCHECK
+            ${CPPCHECK}
+            --suppress=syntaxError
+            --enable=all
+            --inconclusive)
+    else()
+        message(SEND_ERROR "cppcheck enabled but program not found")
+    endif()
+endif()
 
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANGTIDY clang-tidy)
+    if(CLANGTIDY)
+        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
+    else()
+        message(SEND_ERROR "clang-tidy enabled but program not found")
+    endif()
+endif()
+# ---------------------------------------------------------------------------
+
+add_executable(CPlusPlus "main.cpp")
 set_target_properties(CPlusPlus PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
-conan_target_link_libraries( CPlusPlus )
-target_include_directories(CPlusPlus PUBLIC
-    "${PROJECT_BINARY_DIR}"
-)
 
+add_subdirectory( src )
+conan_target_link_libraries( CPlusPlus )
 target_link_libraries(CPlusPlus
     Utils
 )
 
-#! This is not a very portable way of doing things, need to rework...
 install(TARGETS CPlusPlus
-    CONFIGURATIONS Debug
-    RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/install/debug/bin
-    LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/install/debug/lib
-)
-install(TARGETS CPlusPlus
-    CONFIGURATIONS Release
-    RUNTIME DESTINATION ${PROJECT_BINARY_DIR}/install/release/bin
-    LIBRARY DESTINATION ${PROJECT_BINARY_DIR}/install/release/lib
+    EXPORT CPlusPlusTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+    INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 )
 
-#TODO Add more extensive testing
-enable_testing()
-add_test(NAME Runs COMMAND CPlusPlus)
+#TODO Add extensive testing
+if(ENABLE_TESTING)
+    enable_testing()
+    add_test(NAME Runs COMMAND CPlusPlus)
+endif()

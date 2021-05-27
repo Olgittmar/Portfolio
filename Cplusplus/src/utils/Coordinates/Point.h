@@ -13,7 +13,7 @@ namespace utils {
 class Point {
   public:
 	// We use copy constructor implicitly, 
-    // but I can't see any reason to not allow the other defaults as well.
+    // but I can't see any real reason to not allow the other defaults as well.
     Point() = default;
     ~Point() = default;
     Point( const int x, const int y );
@@ -26,8 +26,8 @@ class Point {
 
     static vector<Point> str_to_points( const string str, const char delimiter, const char subDelimiter );
 
-    int x() const;
-    int y() const;
+    inline int x() const { return _x; }
+    inline int y() const { return _y; }
 
   protected:
   private:
