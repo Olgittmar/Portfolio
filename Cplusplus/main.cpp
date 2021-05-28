@@ -2,23 +2,22 @@
 #include <iostream>
 #include <fstream>
 
-// Own
-#include "src/solutions/PointInPolygon.h"
+// Own Qt stuff
+#include "mainwindow.h"
+
+// Qt
+#include <QApplication>
 
 int
 main( int argc, char* argv[] )
 {
     using namespace std;
     cout << "Running main!" << endl;
-    ifstream f;
-    string filepath = "data/point_in_polygon.in";
-    string result;
-    f.open( filepath );
-    if( f.is_open() ){
-        result = Solutions::PointInPolygon( f, cout );
-    } else {
-        cout << "Unable to open " << "data/point_in_polygon.in" << endl;
-    }
-    cin.ignore();
-    return 0;
+
+    QApplication app(argc, argv);
+    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+    MainWindow mw;
+
+    mw.show();
+    return app.exec();
 }

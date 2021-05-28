@@ -27,6 +27,7 @@ cmake_minimum_required(VERSION 3.13) # Using target_sources in the pretty way re
 project(CPlusPlus VERSION 0.1.0)
 configure_file(CPlusPlusConfig.h.in CPlusPlusConfig.h)
 
+
 # Probably shouldn't specify these but I want to start out with what I'm familiar with.
 # c++ 11 is equally fine, I just enjoy discovering the QoL improvements
 set(CMAKE_C_COMPILER clang)
@@ -35,9 +36,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Qt Stuff, not yet implemented
-# set(CMAKE_AUTOMOC ON)
-# set(CMAKE_AUTORCC ON)
-# set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+# Qt support through conan ended up a nightmare, using local qt install instead...
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 # Need compile_commands for VSCode's intellisense to play nice with Ninja
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -113,13 +116,21 @@ if(ENABLE_CLANG_TIDY)
 endif()
 # ---------------------------------------------------------------------------
 
-add_executable(CPlusPlus "main.cpp")
+add_executable(CPlusPlus
+    main.cpp
+    mainwindow.cpp
+    mainwindow.h
+    mainwindow.ui
+    # resources.qrc
+)
+
 set_target_properties(CPlusPlus PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 
 add_subdirectory( src )
 conan_target_link_libraries( CPlusPlus )
-target_link_libraries(CPlusPlus
+target_link_libraries(CPlusPlus PRIVATE
     Utils
+    Qt5::Widgets
 )
 
 install(TARGETS CPlusPlus
