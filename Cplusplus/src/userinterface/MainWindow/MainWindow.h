@@ -11,8 +11,7 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
-public:
+  public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
@@ -22,14 +21,15 @@ public:
     enum SolutionOptions { None, PointInPolygon };
     Q_ENUM(SolutionOptions);
 
-private slots:
+  signals:
+    void runSolution( const SolutionOptions solutionIndex, const QString inFile, const QString outFile );
+
+  private slots:
     void selectInFile();
     void selectOutFile();
-    void runSolution();
+    void onRunButtonPressed();
 
-private:
-    void runPointInPolygon( std::string inFile, std::string outFile );
-
+  private:
     Ui::MainWindow *ui;
     QList<QMetaObject::Connection> mConnections;
 

@@ -40,7 +40,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 # Qt support through conan ended up a nightmare, using local qt install instead...
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 
 # Need compile_commands for VSCode's intellisense to play nice with Ninja
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -118,9 +118,6 @@ endif()
 
 add_executable(CPlusPlus
     main.cpp
-    mainwindow.cpp
-    mainwindow.h
-    mainwindow.ui
     # resources.qrc
 )
 
@@ -130,7 +127,8 @@ add_subdirectory( src )
 conan_target_link_libraries( CPlusPlus )
 target_link_libraries(CPlusPlus PRIVATE
     Utils
-    Qt5::Widgets
+    Qt5::Core
+    UserInterface
 )
 
 install(TARGETS CPlusPlus

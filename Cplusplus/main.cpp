@@ -3,10 +3,12 @@
 #include <fstream>
 
 // Own Qt stuff
-#include "mainwindow.h"
+#include "src/userinterface/MyApp/MyApp.h"
 
 // Qt
-#include <QApplication>
+#include <QObject>
+
+// Own
 
 int
 main( int argc, char* argv[] )
@@ -14,10 +16,8 @@ main( int argc, char* argv[] )
     using namespace std;
     cout << "Running main!" << endl;
 
-    QApplication app(argc, argv);
+    UserInterface::MyApp app(argc, argv);
     QCoreApplication::setApplicationVersion(QT_VERSION_STR);
-    MainWindow mw;
 
-    mw.show();
     return app.exec();
 }

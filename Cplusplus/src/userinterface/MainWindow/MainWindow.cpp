@@ -1,8 +1,13 @@
-#include "mainwindow.h"
-#include "./ui_mainwindow.h"
+// Own Qt stuff
+#include "MainWindow.h"
+#include "./ui_MainWindow.h"
 
-// Own
-#include "src/solutions/PointInPolygon.h"
+// Std
+#include <iostream>
+#include <exception>
+
+// Qt
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -20,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
         ),
         QObject::connect(
             ui->runButton, &QPushButton::pressed,
-            this, &MainWindow::runSolution
+            this, &MainWindow::onRunButtonPressed
         )
     } );
     
@@ -48,6 +53,7 @@ MainWindow::selectInFile()
     if( dialog.exec() ){
         inFile = dialog.selectedFiles().first();
     }
+    ui->currentInFileLabel->setText( inFile );
 }
 
 void
@@ -60,25 +66,18 @@ MainWindow::selectOutFile()
     if( dialog.exec() ){
         outFile = dialog.selectedFiles().first();
     }
+    ui->currentOutFileLabel->setText( outFile );
 }
 
 void
-MainWindow::runSolution()
+MainWindow::onRunButtonPressed()
 {
-    bool ok = false;
-    int index = ui->solutionComboBox->currentData().toInt( &ok );
-    if(ok) {
-        switch(index) {
-            case SolutionOptions::PointInPolygon:
-            {
-                runPointInPolygon( inFileName(), outFileName() );
-            }
-        }
+    std::cout << "Run button pressed!" << std::endl;
+    bool ok;
+    SolutionOptions selectedSolution = (SolutionOptions)ui->solutionComboBox->currentData( Qt::UserRole ).toInt( &ok );
+    if(!ok){
+        throw std::exception("Invalid solution selection!");
+        return;
     }
-}
-
-void
-MainWindow::runPointInPolygon( std::string inFile, std::string outFile )
-{
-    std::cout << "Command: Run PointInPolygon with\n" << "inFile: " << inFile << "\n" << "outFile: " << outFile << std::endl;
+    emit runSolution( selectedSolution, inFile, outFile );
 }
