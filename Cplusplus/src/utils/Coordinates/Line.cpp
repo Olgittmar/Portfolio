@@ -2,17 +2,16 @@
 
 #include <algorithm>
 
-using namespace std;
 namespace utils {
 
 // Constructors
-Line::Line(const Point startPoint, Point endPoint)
-    :_start(startPoint), _end( endPoint ) {}
+Line::Line( const Point& startPoint, const Point& endPoint)
+    :_start( startPoint ), _end( endPoint ) {}
 
 Line::Line( const int start_x, const int start_y, const int end_x, const int end_y )
-    : _start( Point( start_x, start_y ) ), _end( end_x, end_y ) {}
+    : _start( start_x, start_y ), _end( end_x, end_y ) {}
 
-Line::Line( const string str )
+Line::Line( const string& str )
 {
     vector<pair<int, int>> coords;
     subSplit( str, '\n', ' ', coords );

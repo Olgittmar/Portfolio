@@ -40,7 +40,7 @@ MyApp::exec()
 }
 
 void
-MyApp::runSolution( const MainWindow::SolutionOptions solutionIndex, const QString inFile, const QString outFile )
+MyApp::runSolution( const MainWindow::SolutionOptions solutionIndex, const QString& inFile, const QString& outFile )
 {
     std::ifstream ifstrm( inFile.toStdString() );
     std::ofstream ofstrm( outFile.toStdString() );
@@ -51,7 +51,7 @@ MyApp::runSolution( const MainWindow::SolutionOptions solutionIndex, const QStri
     
     //! Not 100% sure this is exception-safe...
     if( !ifstrm.is_open() ){
-        std::cerr << "WARNING: Manual input is not supported, this option is for debug use only!" << std::endl;
+        std::cerr << "WARNING: Manual input is not supported, this option is intended for debugging only!" << std::endl;
         istrmbuf = std::cin.rdbuf();
     } else {
         istrmbuf = ifstrm.rdbuf();

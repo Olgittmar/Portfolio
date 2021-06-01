@@ -7,16 +7,16 @@
 // Own
 #include "Point.h"
 
-using namespace std;
 namespace utils {
+using namespace std;
 
 class Line {
   public:
     Line() = default;
     ~Line() = default;
-    Line( const Point start, const Point end );
+    Line( const Point& startPoint, const Point& endPoint );
     Line( const int start_x, const int start_y, const int end_x, const int end_y );
-    Line( const string str );
+    explicit Line( const string& str );
     
     // QoL method for Polygon, returns the line from this line's endpoint to the given point.
     inline Line fromEnd( const Point p ) const { return Line( this->_end, p ); }

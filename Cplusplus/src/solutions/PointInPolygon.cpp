@@ -11,7 +11,7 @@ PointInPolygon( std::istream& in, std::ostream& out)
     using namespace std;
     string line, ret;
     int numVertices, numPoints;
-    bool readyToClassify = true;
+    bool readyToClassify = false;
     utils::Polygon poly;
     utils::Point testPoint;
 
@@ -24,6 +24,7 @@ PointInPolygon( std::istream& in, std::ostream& out)
                     ret += poly.classify( testPoint ) + '\n';
                 }
             }
+            readyToClassify = false;
         } else {
             numVertices = atoi( line.c_str() );
             if ( numVertices != 0 ){

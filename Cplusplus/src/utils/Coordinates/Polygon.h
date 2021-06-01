@@ -8,16 +8,15 @@
 #include "Point.h"
 #include "Line.h"
 
-using namespace std;
-
 namespace utils {
+using namespace std;
 
 class Polygon {
   public:
     Polygon() = default;
     ~Polygon() = default;
-    Polygon(const string str);
-    Polygon(const vector<Point> points);
+    explicit Polygon(const string& str);
+    explicit Polygon(const vector<Point>& points);
 
     // Classifies the point p and returns a string with the corresponding classification,
     // "out" if p is outside the polygon

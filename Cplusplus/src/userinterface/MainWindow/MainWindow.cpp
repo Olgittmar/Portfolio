@@ -77,7 +77,6 @@ MainWindow::onRunButtonPressed()
     SolutionOptions selectedSolution = (SolutionOptions)ui->solutionComboBox->currentData( Qt::UserRole ).toInt( &ok );
     if(!ok){
         throw std::exception("Invalid solution selection!");
-        return;
     }
     emit runSolution( selectedSolution, inFile, outFile );
 }

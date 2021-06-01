@@ -2,16 +2,14 @@
 
 #include "../StringUtils/StringUtils.h"
 
-using namespace std;
-
 namespace utils {
 
-Polygon::Polygon(const string str)
+Polygon::Polygon(const string& str)
 {
     this->_vertices = Point::str_to_points(str, '\n', ' ');
 }
 
-Polygon::Polygon(const vector<Point> points) : _vertices(points){}
+Polygon::Polygon(const vector<Point>& points) : _vertices(points){}
 
 string
 Polygon::classify(const Point p) const

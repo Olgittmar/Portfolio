@@ -19,7 +19,7 @@ class MyApp : public QApplication
     int exec();
 
   private slots:
-    void runSolution( const MainWindow::SolutionOptions solutionIndex, const QString infile, const QString outFile );
+    void runSolution( const MainWindow::SolutionOptions solutionIndex, const QString& inFile, const QString& outFile );
 
   private:
     QPointer<MainWindow> mw;

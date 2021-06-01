@@ -7,6 +7,7 @@ target_include_directories(UserInterface PUBLIC
 )
 
 target_link_libraries(UserInterface
+    Qt5::Core
     Qt5::Widgets
 )
 

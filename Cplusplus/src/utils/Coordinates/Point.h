@@ -6,9 +6,8 @@
 // Own
 #include "../StringUtils/StringUtils.h"
 
-using namespace std;
-
 namespace utils {
+using namespace std;
 
 class Point {
   public:
@@ -17,22 +16,24 @@ class Point {
     Point() = default;
     ~Point() = default;
     Point( const int x, const int y );
-    Point( const string str );
-    Point( const pair<int,int> coords );
+    Point( const Point& other );
+    explicit Point( const string& str );
+    // Might want to allow implicit conversion of pairs, assuming use looks like Pair({x,y});
+    explicit Point( const pair<int,int>& coords );
 
     inline bool operator==(const Point& other) const {
         return (this->_x == other._x && this->_y == other._y);
     };
 
-    static vector<Point> str_to_points( const string str, const char delimiter, const char subDelimiter );
+    static vector<Point> str_to_points( const string& str, const char delimiter, const char subDelimiter );
 
     inline int x() const { return _x; }
     inline int y() const { return _y; }
 
   protected:
   private:
-    int _x = 0;
-    int _y = 0;
+    int _x;
+    int _y;
 };
 
 } // namespace utils

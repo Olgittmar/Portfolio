@@ -51,10 +51,10 @@ set(CONAN_CMAKE_GENERATOR Ninja)
 set(CMAKE_DEBUG_POSTFIX d)
 
 # Options
-option(ENABLE_TESTING "Enable building of test" FALSE )
-option(ENABLE_SANITIZER "Use compiler sanitizer" FALSE )
-option(ENABLE_CPPCHECK "Enable testing with cppcheck" FALSE )
-option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" FALSE)
+option(ENABLE_TESTING "Enable building of test" TRUE )
+option(ENABLE_SANITIZER "Use compiler sanitizer" TRUE )
+option(ENABLE_CPPCHECK "Enable testing with cppcheck" TRUE )
+option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" TRUE )
 option(DETAILED_BUILD "Verbose building" FALSE ) # Not yet implemented
 
 # Binary dir should be the build folder corresponding to build type, eg "CPlusPlus/build/debug"
@@ -76,44 +76,6 @@ message("Clang-tidy:       \t ${ENABLE_CLANG_TIDY}")
 message("Cppcheck:         \t ${ENABLE_CPPCHECK}")
 message("Detailed build:   \t ${DETAILED_BUILD}")
 message("-----------------------------------------")
-
-# ---------------------------------------------------------------------
-if(DETAILED_BUILD)
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        add_compile_options("-v")
-    endif()
-endif()
-
-if(ENABLE_SANITIZER)
-    set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
-    if(SANITIZER)
-        if(SANITIZER MATCHES "(Address)")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-        endif()
-    endif()
-endif()
-
-if(ENABLE_CPPCHECK)
-    find_program(CPPCHECK cppcheck)
-    if(CPPCHECK)
-        set(CMAKE_CXX_CPPCHECK
-            ${CPPCHECK}
-            --suppress=syntaxError
-            --enable=all
-            --inconclusive)
-    else()
-        message(SEND_ERROR "cppcheck enabled but program not found")
-    endif()
-endif()
-
-if(ENABLE_CLANG_TIDY)
-    find_program(CLANGTIDY clang-tidy)
-    if(CLANGTIDY)
-        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
-    else()
-        message(SEND_ERROR "clang-tidy enabled but program not found")
-    endif()
-endif()
 # ---------------------------------------------------------------------------
 
 add_executable(CPlusPlus
@@ -138,7 +100,49 @@ install(TARGETS CPlusPlus
     INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 )
 
-#TODO Add extensive testing
+# -----------------------------------------------------------------------------------------
+# My formatter does not play nice with cmake code :/
+
+if(DETAILED_BUILD)
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        add_compile_options("-v")
+    endif()
+endif()
+
+if(ENABLE_SANITIZER)
+    set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
+    if(SANITIZER)
+        if(SANITIZER MATCHES "(Address)")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+        endif()
+    endif()
+endif()
+
+if(ENABLE_CPPCHECK)
+    find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+    if(CMAKE_CXX_CPPCHECK)
+        message("${CMAKE_CURRENT_BINARY_DIR}/CPlusPlus_autogen")
+        list(APPEND CMAKE_CXX_CPPCHECK
+        "--enable=warning"
+        "--project=compile_commands.json"
+        "--library=qt"
+        "--cppcheck-build-dir=${CMAKE_BINARY_DIR}"
+        "--suppress=preprocessorErrorDirective" # Cppcheck complains about MainWindow.h not including <QObject>, but it does!
+        )
+    else()
+        message(SEND_ERROR "cppcheck enabled but program not found")
+    endif()
+endif()
+
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANGTIDY clang-tidy)
+    if(CLANGTIDY)
+        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
+    else()
+        message(SEND_ERROR "clang-tidy enabled but program not found")
+    endif()
+endif()
+
 if(ENABLE_TESTING)
     enable_testing()
     add_test(NAME Runs COMMAND CPlusPlus)
