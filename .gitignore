@@ -138,4 +138,5 @@ CMakeFiles/
 CMakeCache.txt
 
 # Personal workflow stuff
-build.bat
+# build.bat
+Cplusplus/clear.bat
