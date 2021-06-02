@@ -124,8 +124,8 @@ if(ENABLE_CPPCHECK)
         message("${CMAKE_CURRENT_BINARY_DIR}/CPlusPlus_autogen")
         list(APPEND CMAKE_CXX_CPPCHECK
         "--enable=warning"
-        "--project=compile_commands.json"
         "--library=qt"
+        "--project=compile_commands.json"
         "--cppcheck-build-dir=${CMAKE_BINARY_DIR}"
         "--suppress=preprocessorErrorDirective" # Cppcheck complains about MainWindow.h not including <QObject>, but it does!
         )
