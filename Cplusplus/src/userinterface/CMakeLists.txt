@@ -3,33 +3,30 @@ add_library(UserInterface STATIC)
 
 target_include_directories(UserInterface PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/MyApp
+    ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow
     ${CMAKE_INSTALL_PREFIX}/include
     ${CMAKE_PREFIX_PATH}
 )
 
 target_link_directories(UserInterface PUBLIC
     ${CMAKE_PREFIX_PATH}
-)
-
-target_link_libraries(UserInterface
-    Qt::Core
-    Qt::Widgets
+    ${CMAKE_INSTALL_PREFIX}/lib
 )
 
 target_sources(UserInterface
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/MyApp/MyApp.h
         ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.ui
     PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.ui
         ${CMAKE_CURRENT_SOURCE_DIR}/MyApp/MyApp.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.cpp
 )
 
-target_include_directories(UserInterface
-    PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/MyApp
-        ${CMAKE_CURRENT_LIST_DIR}/MainWindow
+target_link_libraries(UserInterface
+    Qt::Core
+    Qt::Widgets
 )
 
 install(TARGETS UserInterface

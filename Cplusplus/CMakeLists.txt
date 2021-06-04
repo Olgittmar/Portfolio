@@ -91,7 +91,6 @@ set_target_properties(CPlusPlus PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 add_subdirectory( src )
 # conan_target_link_libraries( CPlusPlus )
 target_link_libraries(CPlusPlus PRIVATE
-    Qt5::Core
     CPlusPlus::Utils
     CPlusPlus::Solutions
     CPlusPlus::UserInterface
@@ -100,14 +99,18 @@ target_link_libraries(CPlusPlus PRIVATE
 if(ENABLE_TESTING)
     include(CTest)
     include(Catch)
-    add_executable(test_all
-        tests-main.cpp
-    )
-    add_subdirectory(tests)
+    add_executable(test_all tests-main.cpp)
     target_link_libraries(test_all
         CONAN_PKG::catch2
+        CPlusPlus::Utils
+        CPlusPlus::Solutions
+        # CPlusPlus::UserInterface
     )
+    add_subdirectory(tests)
     catch_discover_tests(test_all)
+    add_custom_command(TARGET test_all DEPENDS CPlusPlus
+        POST_BUILD COMMAND ctest --output-on-failure
+    )
 endif()
 
 install(TARGETS CPlusPlus

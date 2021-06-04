@@ -1,5 +1,5 @@
 message(STATUS "Generating tests...")
-# add_library(Tests STATIC)
-
-
+add_subdirectory(test_Utils)
+add_subdirectory(test_Solutions)
+add_subdirectory(test_UserInterface)
 message(STATUS "Finished generating tests!")
