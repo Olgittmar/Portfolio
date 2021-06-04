@@ -1,9 +1,9 @@
-message("In Utils...")
+message(STATUS "Generating Utils lib")
 add_library(Utils STATIC)
 
 target_include_directories(Utils PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-    "$<INSTALL_INTERFACE:include>"
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_INSTALL_PREFIX}/include
 )
 
 target_sources(Utils
@@ -15,6 +15,7 @@ target_sources(Utils
 
 add_subdirectory(StringUtils)
 add_subdirectory(Coordinates)
+add_subdirectory(TestingUtils)
 
 install(TARGETS Utils
     EXPORT UtilsTargets
@@ -22,4 +23,6 @@ install(TARGETS Utils
     INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 )
 
-message("Done!")
+add_library(CPlusPlus::Utils ALIAS Utils)
+
+message(STATUS "Finished generating Utils lib")

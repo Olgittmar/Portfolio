@@ -1,24 +1,29 @@
-message("In UserInterface...")
+message(STATUS "Generating UserInterface...")
 add_library(UserInterface STATIC)
 
 target_include_directories(UserInterface PUBLIC
-    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-    "$<INSTALL_INTERFACE:include>"
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_INSTALL_PREFIX}/include
+    ${CMAKE_PREFIX_PATH}
+)
+
+target_link_directories(UserInterface PUBLIC
+    ${CMAKE_PREFIX_PATH}
 )
 
 target_link_libraries(UserInterface
-    Qt5::Core
-    Qt5::Widgets
+    Qt::Core
+    Qt::Widgets
 )
 
 target_sources(UserInterface
     PUBLIC
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/MyApp/MyApp.h"
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/MainWindow/MainWindow.h"
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/MainWindow/MainWindow.ui"
+        ${CMAKE_CURRENT_SOURCE_DIR}/MyApp/MyApp.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.ui
     PRIVATE
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/MyApp/MyApp.cpp"
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>/MainWindow/MainWindow.cpp"
+        ${CMAKE_CURRENT_SOURCE_DIR}/MyApp/MyApp.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.cpp
 )
 
 target_include_directories(UserInterface
@@ -32,5 +37,6 @@ install(TARGETS UserInterface
     LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
     INCLUDES DESTINATION ${CMAKE_INSTALL_PREFIX}/include
 )
+add_library(CPlusPlus::UserInterface ALIAS UserInterface)
 
-message("Done!")
+message(STATUS "Finished generating UserInterface!")
