@@ -30,6 +30,8 @@ class Point {
     inline int x() const { return _x; }
     inline int y() const { return _y; }
 
+    friend ostream& operator<<(ostream& os, const Point& p);
+
   protected:
   private:
     int _x;

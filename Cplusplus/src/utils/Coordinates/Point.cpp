@@ -28,4 +28,11 @@ Point::str_to_points( const string& str, const char delimiter, const char subDel
     return out;
 }
 
+ostream&
+operator<<(ostream& os, const Point& p)
+{
+    os << "(" << p.x() << "," << p.y() << ")";
+    return os;
+}
+
 }

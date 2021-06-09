@@ -31,6 +31,70 @@ Line::dy() const
     return ( _end.y() - _start.y() );
 }
 
+Point
+Line::aboveLine( const Line& theLine ) {
+    return Point(
+        theLine.midpoint().x(),
+        max( theLine.start().y(), theLine.end().y() ) + 1
+    );
+}
+
+Point
+Line::belowLine( const Line& theLine ) {
+    return Point(
+        theLine.midpoint().x(),
+        min( theLine.start().y(), theLine.end().y() ) - 1
+    );
+}
+
+Point
+Line::leftOfLine( const Line& theLine ) {
+    return Point(
+        min( theLine.start().x(),
+        theLine.end().x() ) - 1, theLine.midpoint().y()
+    );
+}
+
+Point
+Line::rightOfLine( const Line& theLine ) {
+    return Point(
+        max( theLine.start().x(),
+        theLine.end().x() ) + 1, theLine.midpoint().y()
+    );
+}
+
+Point
+Line::aboveMidpoint( const Line& theLine ) {
+    return Point(
+        theLine.midpoint().x(),
+        theLine.midpoint().y() + 1
+    );
+}
+
+Point
+Line::belowMidpoint( const Line& theLine ) {
+    return Point(
+        theLine.midpoint().x(),
+        theLine.midpoint().y() - 1
+    );
+}
+
+Point
+Line::leftOfMidpoint( const Line& theLine ) {
+    return Point(
+        theLine.midpoint().x() - 1,
+        theLine.midpoint().y()
+    );
+}
+
+Point
+Line::rightOfMidpoint( const Line& theLine ) {
+    return Point(
+        theLine.midpoint().x() + 1,
+        theLine.midpoint().y()
+    );
+}
+
 double
 Line::slope() const
 {
@@ -86,7 +150,7 @@ Line::inVRange( const int y ) const
 bool
 Line::isAngled() const
 {
-    return ( slope() != INFINITY && slope() != 0);
+    return !( dx() == 0 || dy() == 0 );
 }
 
 double
@@ -96,7 +160,7 @@ Line::yAt( const int x ) const
         if( slope() == 0 ){
             return _start.y();
         } else {
-            throw exception("Undefined value; line is vertical");
+            throw exception("Math error: yAt value is undefined, line is vertical");
         }
     }
     // For extremely long lines it might make a difference which point we use as reference
@@ -110,7 +174,7 @@ Line::xAt( const int y ) const
         if( invSlope() == 0 ){
             return _start.x();
         } else {
-            throw exception("Undefined value; line is horizontal");
+            throw exception("Math error: xAt value is undefined, line is horizontal");
         }
     }
     return (_start.x() + (y - _start.y())*invSlope() );
@@ -145,7 +209,7 @@ Line::intersects( const Point p ) const
             }
             break;
             default:
-                throw exception("Unexpected quadrant somehow ecnountered!");
+                throw exception("Unexpected quadrant somehow encountered!");
         }
     }
 }
@@ -165,6 +229,13 @@ Line::includes( const Point p ) const
     // Potentially we could fail the above due to rounding error test if dx is very large
     // So let's test the other way around as well, otherwise we'll have to say it's not included.
     return xAt( p.y() ) == p.x();
+}
+
+ostream&
+operator<<(ostream& os, const Line& theLine )
+{
+    os << theLine._start << " - " << theLine._end;
+    return os;
 }
 
 } // namespace utils
