@@ -108,8 +108,16 @@ if(ENABLE_TESTING)
     )
     add_subdirectory(tests)
     catch_discover_tests(test_all)
-    add_custom_command(TARGET test_all DEPENDS CPlusPlus
-        POST_BUILD COMMAND ctest --output-on-failure --stop_on_failure )
+    add_custom_command(TARGET test_all
+        POST_BUILD COMMAND
+            test_all
+                --break
+                --abort
+                --reporter console
+                --order rand
+                --use-colour yes
+        DEPENDS CPlusPlus
+    )
 endif()
 
 install(TARGETS CPlusPlus

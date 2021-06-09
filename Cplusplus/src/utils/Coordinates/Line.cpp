@@ -101,7 +101,7 @@ Line::slope() const
     if( dx() == 0 ) {
     	return INFINITY;
     }
-    return ( dy()/dx() );
+    return dy()/dx();
 }
 
 double
@@ -109,8 +109,9 @@ Line::invSlope() const
 {
     if( dy() == 0 ) {
     	return INFINITY;
+    } else {
+        return dx()/dy();
     }
-    return ( dx()/dy() );
 }
 
 int
@@ -162,9 +163,10 @@ Line::yAt( const int x ) const
         } else {
             throw exception("Math error: yAt value is undefined, line is vertical");
         }
+    } else {
+        // For extremely long lines it might make a difference which point we use as reference
+        return (_start.y() + (x - _start.x())*slope() );
     }
-    // For extremely long lines it might make a difference which point we use as reference
-    return (_start.y() + (x - _start.x())*slope() );
 }
 
 double
@@ -217,11 +219,19 @@ Line::intersects( const Point p ) const
 bool
 Line::includes( const Point p ) const
 {
+    if( p==_start || p==_end ){
+        // Should fix some edgecases, also slightly faster in those cases.
+        return true;
+    }
     if( !inHRange( p.x() ) ){
         return false;
     }
     if( !inVRange( p.y() ) ){
         return false;
+    }
+    if( !isAngled() ){
+        // If the line is vertical or horizontal, the above checks are enough to guarantee that the point is on the line.
+        return true;
     }
     if( yAt( p.x() ) == p.y() ){
         return true;

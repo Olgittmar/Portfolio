@@ -21,7 +21,8 @@ subSplit( const string& str, const char delimiter, const char subDelimiter, vect
     istringstream iss( str );
     string item, subItem;
     while ( getline( iss, item, delimiter ) ) {
-        while ( getline(iss, subItem, subDelimiter ) ) {
+        istringstream subiss( item );
+        while ( getline(subiss, subItem, subDelimiter ) ) {
 	        item += subDelimiter + subItem;
         }
     	out.push_back( item );
@@ -35,11 +36,12 @@ subSplit( const string& str, const char delimiter, const char subDelimiter, vect
     string item, subItem;
     while ( getline( iss, item, delimiter ) ) {
         int first, second; // I was promised that there would be no performance loss, but I don't trust the debug mode...
-		getline( iss, subItem, subDelimiter );
+        istringstream subiss(item);
+		getline( subiss, subItem, subDelimiter );
 		if ( !(first = atoi( subItem.c_str() ) ) ){
 	    	exception( "Failed to convert item to int." );
 		}
-    	getline( iss, subItem, delimiter );
+    	getline( subiss, subItem, delimiter );
     	if ( !(second = atoi( item.c_str() ) ) ){
 	    	exception( "Failed to convert item to int." );
     	}
