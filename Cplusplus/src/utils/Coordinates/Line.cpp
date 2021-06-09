@@ -101,7 +101,7 @@ Line::slope() const
     if( dx() == 0 ) {
     	return INFINITY;
     }
-    return dy()/dx();
+    return ((double)dy()/(double)dx());
 }
 
 double
@@ -109,9 +109,8 @@ Line::invSlope() const
 {
     if( dy() == 0 ) {
     	return INFINITY;
-    } else {
-        return dx()/dy();
     }
+    return ((double)dx()/(double)dy());
 }
 
 int

@@ -24,22 +24,22 @@ TEST_CASE( "Points can be initialized in different ways but still represent the 
     REQUIRE_FALSE( p3 == p4 );
 }
 
-// TEST_CASE( "A vector of points can also be initialized from a string." "[Point]" ) {
-//     std::vector<int> Xs = GENERATE( chunk(10, random(-10000, 10000) ) );
-//     std::vector<int> Ys = GENERATE( chunk(10, random(-10000, 10000) ) );
-//     std::string pointList;
-//     std::vector<utils::Point> expectedResult;
-//     auto Xit = Xs.cbegin();
-//     auto Yit = Ys.cbegin();
-//     char delim = '\n';
-//     char subDelim = ' ';
+TEST_CASE( "A vector of points can also be initialized from a string." "[Point]" ) {
+    std::vector<int> Xs = GENERATE( chunk(10, random(-10000, 10000) ) );
+    std::vector<int> Ys = GENERATE( chunk(10, random(-10000, 10000) ) );
+    std::string pointList;
+    std::vector<utils::Point> expectedResult;
+    auto Xit = Xs.cbegin();
+    auto Yit = Ys.cbegin();
+    char delim = '\n';
+    char subDelim = ' ';
 
-//     while( Xit != Xs.cend() && Yit != Ys.cend() ){
-//         pointList.append( std::to_string( *(Xit) ) + " " + std::to_string( *(Yit) ) );
-//         expectedResult.push_back( utils::Point( *(Xit++), *(Yit++) ) );
-//     }
-//     std::string badPointList = "2 3\n3 4\n5 6\n . fisk";
+    while( Xit != Xs.cend() && Yit != Ys.cend() ){
+        pointList.append( std::to_string( *(Xit) ) + ' ' + std::to_string( *(Yit) ) + '\n' );
+        expectedResult.push_back( utils::Point( *(Xit++), *(Yit++) ) );
+    }
+    std::string badPointList = "2 3\n3 4\n5 6\n . fisk";
 
-//     REQUIRE( utils::Point::str_to_points( pointList, delim, subDelim ) == expectedResult );
-//     REQUIRE_THROWS( utils::Point::str_to_points( badPointList, delim, subDelim ) );
-// }
+    REQUIRE( utils::Point::str_to_points( pointList, delim, subDelim ) == expectedResult );
+    REQUIRE_THROWS( utils::Point::str_to_points( badPointList, delim, subDelim ) );
+}
