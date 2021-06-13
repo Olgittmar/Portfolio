@@ -49,7 +49,7 @@ goto :eof
 :BUILDDEBUG
 if not exist "debug" mkdir debug
 pushd debug
-conan install ../../conan --profile ../../conan/profile.txt
+conan install ../../conan --profile ../../conan/profile.txt --build=missing
 cmake ../.. -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\bin -DCMAKE_INSTALL_PREFIX=..\\..\\install\\debug
 if %ERRORLEVEL% NEQ 0 (
     echo An error occured while building Debug!

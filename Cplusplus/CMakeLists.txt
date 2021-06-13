@@ -34,10 +34,10 @@ conan_basic_setup(TARGETS)
 # SETTINGS
 # Probably shouldn't specify these but I want to start out with what I'm familiar with.
 # c++ 11 is equally fine, I just enjoy discovering the QoL improvements
-set(CMAKE_C_COMPILER clang)
-set(CMAKE_CXX_COMPILER clang++)
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# set(CMAKE_C_COMPILER clang)
+# set(CMAKE_CXX_COMPILER clang++)
+# set(CMAKE_CXX_STANDARD 20)
+# set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Need compile_commands for VSCode's intellisense to play nice with Ninja
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
@@ -60,7 +60,7 @@ option(DETAILED_BUILD "Verbose building" FALSE ) # Not yet implemented
 # EXTERNAL
 
 # Qt support through conan ended up a nightmare, using local qt install instead...
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
+# find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
 # find_package(Catch2 REQUIRED)
 
 # Recount to user what we are doing
@@ -108,9 +108,7 @@ if(ENABLE_TESTING)
     )
     add_subdirectory(tests)
     catch_discover_tests(test_all)
-    add_custom_command(TARGET test_all
-        POST_BUILD COMMAND
-            test_all
+    add_custom_command(POST_BUILD COMMAND test_all
                 --break
                 --abort
                 --reporter console
