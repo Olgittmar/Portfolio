@@ -49,8 +49,8 @@ goto :eof
 :BUILDDEBUG
 if not exist "debug" mkdir debug
 pushd debug
-conan install ../../conan --profile ../../conan/profile.txt --build=missing
-cmake ../.. -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\bin -DCMAKE_INSTALL_PREFIX=..\\..\\install\\debug
+conan install ../../conan --profile ../../conan/debug_profile.txt --build=missing
+cmake ../.. -G Ninja -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\bin -DCMAKE_INSTALL_PREFIX=..\\..\\install\\debug
 if %ERRORLEVEL% NEQ 0 (
     echo An error occured while building Debug!
     popd
@@ -76,8 +76,8 @@ goto :DEBUGCOMPILED
 :BUILDRELEASE
 if not exist "release" mkdir release
 pushd release
-conan install ../../conan --profile ../../conan/profile.txt
-cmake ../.. -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\;C:\\Users\\olgit\\.conan\\data -DCMAKE_INSTALL_PREFIX=..\\..\\install\\release
+conan install ../../conan --profile ../../conan/release_profile.txt
+cmake ../.. -G Ninja -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\;C:\\Users\\olgit\\.conan\\data -DCMAKE_INSTALL_PREFIX=..\\..\\install\\release
 if %ERRORLEVEL% NEQ 0 (
     echo An error occured while building Release!
     popd

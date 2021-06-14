@@ -1,5 +1,6 @@
 [requires]
 catch2/[>=2.13.4]
+qt/[>=6.1.0]
+[options]
 [generators]
 cmake
-# qmake
