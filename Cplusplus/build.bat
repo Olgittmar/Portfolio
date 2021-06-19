@@ -14,18 +14,25 @@ goto :eof
 if not exist "build" (
     mkdir build
     pushd build
-    mkdir debug
-    mkdir release
+    if not exist "debug" (
+        mkdir debug
+    )
+    if not exist "release" (
+        mkdir release
+    )
     popd
 )
 if not exist "install" (
     mkdir install
     pushd install
-    mkdir debug
-    mkdir release
+    if not exist "debug" (
+        mkdir debug
+    )
+    if not exist "release" (
+        mkdir release
+    )
     popd
 )
-pushd build
 if {%1}=={debug} goto :BUILDDEBUG
 if {%1}=={all} goto :BUILDDEBUG
 if {%1}=={} goto :BUILDDEBUG
@@ -43,59 +50,38 @@ if {%1}=={release} goto :COMPILERELEASE
 if {%1}=={all} goto :COMPILERELEASE
 if {%1}=={} goto :COMPILERELEASE
 :RELEASECOMPILED
-popd
 goto :eof
 
 :BUILDDEBUG
-if not exist "debug" mkdir debug
-pushd debug
-conan install ../../conan --profile ../../conan/debug_profile.txt --build=missing
-cmake ../.. -G Ninja -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\bin -DCMAKE_INSTALL_PREFIX=..\\..\\install\\debug
-if %ERRORLEVEL% NEQ 0 (
-    echo An error occured while building Debug!
-    popd
-    popd
-    goto :eof
-)
-popd
+conan install ./conan --install-folder ./build/debug --profile ./conan/debug_profile.txt --build=missing
+if %ERRORLEVEL% NEQ 0 goto :ERROR
+conan build ./conan --configure --build-folder ./build/debug -sf . -if ./build/debug
+if %ERRORLEVEL% NEQ 0 goto :ERROR
+conan build ./conan --build --build-folder ./build/debug -sf . -if ./build/debug
+if %ERRORLEVEL% NEQ 0 goto :ERROR
+conan build ./conan --test --build-folder ./build/debug -sf . -if ./build/debug
+if %ERRORLEVEL% NEQ 0 goto :ERROR
+conan build ./conan --install --build-folder ./build/debug -sf . -if ./build/debug
+if %ERRORLEVEL% NEQ 0 goto :ERROR
 goto :DEBUGBUILT
 
 :COMPILEDEBUG
-if not exist "debug" goto :BUILDDEBUG
-pushd debug
 ninja && ninja install
-if %ERRORLEVEL% NEQ 0 (
-    echo An error occured while attempting to compile and install Debug!
-    popd
-    popd
-    goto :eof
-)
-popd
+if %ERRORLEVEL% NEQ 0 goto :EROOR
 goto :DEBUGCOMPILED
 
 :BUILDRELEASE
-if not exist "release" mkdir release
-pushd release
-conan install ../../conan --profile ../../conan/release_profile.txt
-cmake ../.. -G Ninja -DCMAKE_PREFIX_PATH=C:\\Qt\\5.15.2\\msvc2019\\;C:\\Users\\olgit\\.conan\\data -DCMAKE_INSTALL_PREFIX=..\\..\\install\\release
-if %ERRORLEVEL% NEQ 0 (
-    echo An error occured while building Release!
-    popd
-    popd
-    goto :eof
-)
-popd
+@REM conan install ./conan --install-folder ./build/release --profile ./conan/profile.txt --build=missing
+@REM if %ERRORLEVEL% NEQ 0 goto :ERROR
+@REM conan build ./conan --build-folder ./build/release
+@REM if %ERRORLEVEL% NEQ 0 goto :ERROR
 goto :RELEASEBUILT
 
 :COMPILERELEASE
-if not exist "release" goto :BUILDRELEASE
-pushd release
-ninja && ninja install
-if %ERRORLEVEL% NEQ 0 (
-    echo An error occured while attempting to compile and install Release!
-    popd
-    popd
-    goto :eof
-)
-popd
-goto :RELEASECOMPILED
+@REM ninja && ninja install
+@REM if %ERRORLEVEL% NEQ 0 goto :ERROR
+goto :eof
+
+:ERROR
+echo An error occured!
+goto :eof

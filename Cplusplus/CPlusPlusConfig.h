@@ -1,3 +1,3 @@
-#define CPlusPlus_VERSION_MAJOR 0
-#define CPlusPlus_VERSION_MINOR 1
-#define CPlusPlus_VERSION_PATCH 0
+#define CPlusPlus_VERSION_MAJOR 
+#define CPlusPlus_VERSION_MINOR 
+#define CPlusPlus_VERSION_PATCH 

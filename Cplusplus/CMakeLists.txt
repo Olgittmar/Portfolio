@@ -28,20 +28,18 @@ cmake_minimum_required(VERSION 3.13) # Using target_sources in the pretty way re
 project(CPlusPlusProject VERSION 0.1.0)
 configure_file(CPlusPlusConfig.h.in CPlusPlusConfig.h)
 # Binary dir should be the build folder corresponding to build type, eg "CPlusPlus/build/debug"
-include( ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake ) #TODO Use generator expressions consistenyly throughout the project
-conan_basic_setup(TARGETS)
+# include( ${CMAKE_BINARY_DIR}/conanbuildinfo.cmake ) #TODO Use generator expressions consistenyly throughout the project
+# include( ${CMAKE_BINARY_DIR}/conan_paths.cmake )
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+# include_directories(${CMAKE_BINARY_DIR})
 # --------------------------------------------------------------------------------------
 # SETTINGS
-# C++ standard and compiler defined in conan recipe
+# C++ standard and compiler defined in conan recipe, but doesn't seem to propagate?
 # Need compile_commands for VSCode's intellisense to play nice with Ninja
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
-
-# For some reason I can't seem to be able to specify Ninja as generator otherwise,
-# and it ends up using Visual studio. To avoid this I just specify Ninja as generator here instead.
-set(CONAN_CMAKE_GENERATOR Ninja)
 set(CMAKE_DEBUG_POSTFIX d)
 
 # Options
@@ -55,8 +53,10 @@ option(DETAILED_BUILD "Verbose building" FALSE ) # Not yet implemented
 # EXTERNAL
 
 # Qt support through conan ended up a nightmare, using local qt install instead...
-find_package(Qt5 COMPONENTS Core Widgets REQUIRED)
-# find_package(Catch2 REQUIRED)
+find_package(Qt6 COMPONENTS Core Widgets REQUIRED)
+if(ENABLE_TESTING)
+    find_package(Catch2 REQUIRED CONFIG)
+endif()
 
 # Recount to user what we are doing
 message("=========================================")
@@ -86,6 +86,7 @@ set_target_properties(CPlusPlus PROPERTIES DEBUG_POSTFIX ${CMAKE_DEBUG_POSTFIX})
 add_subdirectory( src )
 # conan_target_link_libraries( CPlusPlus )
 target_link_libraries(CPlusPlus PRIVATE
+    Qt6::Qt6
     CPlusPlus::Utils
     CPlusPlus::Solutions
     CPlusPlus::UserInterface
@@ -93,16 +94,15 @@ target_link_libraries(CPlusPlus PRIVATE
 
 if(ENABLE_TESTING)
     include(CTest)
-    include(Catch)
     add_executable(test_all tests-main.cpp)
     target_link_libraries(test_all
-        CONAN_PKG::catch2
+        Catch2::Catch2
         CPlusPlus::Utils
         CPlusPlus::Solutions
         # CPlusPlus::UserInterface
     )
     add_subdirectory(tests)
-    catch_discover_tests(test_all)
+    # catch_discover_tests(test_all)
     add_custom_command(TARGET test_all
             POST_BUILD COMMAND test_all
                 --break

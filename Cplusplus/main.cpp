@@ -3,10 +3,11 @@
 #include <fstream>
 
 // Own Qt stuff
-#include "src/userinterface/MyApp/MyApp.h"
+#include <MyApp.h>
+// #include "src/userinterface/MyApp/MyApp.h"
 
 // Qt
-#include <QObject>
+// #include <QObject>
 
 // Own
 

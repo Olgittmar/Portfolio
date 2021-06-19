@@ -1,0 +1,15 @@
+[requires]
+catch2/[>=2.13.4]
+qt/[>=6.1.1]
+[options]
+*:shared=True
+[generators]
+cmake
+qt
+cmake_find_package
+cmake_paths
+[imports]
+bin, *.dll -> ./bin
+lib, *.dylib* -> ./lib
+lib, *.so* -> ./lib
+., license* -> ./licenses @ folder=True, ignore_case=True

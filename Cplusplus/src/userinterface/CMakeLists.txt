@@ -25,7 +25,8 @@ target_sources(UserInterface
 )
 
 target_link_libraries(UserInterface
-    CONAN_PKG::qt
+    Qt6::Core
+    Qt6::Widgets
 )
 
 install(TARGETS UserInterface
