@@ -4,6 +4,7 @@
 
 // Own Qt stuff
 #include <MyApp.h>
+#include <QCoreApplication>
 // #include "src/userinterface/MyApp/MyApp.h"
 
 // Qt
@@ -18,7 +19,7 @@ main( int argc, char* argv[] )
     cout << "Running main!" << endl;
 
     UserInterface::MyApp app(argc, argv);
-    QCoreApplication::setApplicationVersion(QT_VERSION_STR);
+    // QCoreApplication::setApplicationVersion(QT_VERSION_STR);
 
     return app.exec();
 }
