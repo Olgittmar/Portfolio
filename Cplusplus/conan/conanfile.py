@@ -28,8 +28,8 @@ class CPlusPlusConan(ConanFile):
                 cmake.configure()
             if self.should_build:
                 cmake.build()
-            # if self.should_test:
-                # cmake.test( output_on_failure=True )
+            if self.should_test:
+                cmake.test( output_on_failure=True )
                 # cmake.test( target="test_all", output_on_failure=True)
             if self.should_install:
                 cmake.install()

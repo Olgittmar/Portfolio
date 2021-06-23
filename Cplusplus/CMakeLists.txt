@@ -35,9 +35,10 @@ conan_basic_setup(TARGETS)
 # Need compile_commands for VSCode's intellisense to play nice with Ninja
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 # Options
-option(ENABLE_TESTING "Enable building of test" FALSE )
+option(ENABLE_TESTING "Enable building of test" TRUE )
 option(ENABLE_SANITIZER "Use compiler sanitizer" TRUE )
 option(ENABLE_CPPCHECK "Enable testing with cppcheck" TRUE )
 option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" TRUE )
@@ -45,15 +46,11 @@ option(DETAILED_BUILD "Verbose building" FALSE ) # Not yet implemented
 
 # --------------------------------------------------------------------------------------
 # EXTERNAL
-find_package(Qt6 COMPONENTS Core Widgets REQUIRED CONFIG)
+find_package(Qt6 COMPONENTS Core Gui Widgets Test REQUIRED CONFIG)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-
-if(ENABLE_TESTING)
-    # find_package(Catch2 REQUIRED)
-endif()
 
 # Recount to user what we are doing
 message("=========================================")
@@ -93,26 +90,8 @@ target_link_libraries(CPlusPlusExe PRIVATE
 )
 
 if(ENABLE_TESTING)
-    # include(CTest)
-    # include(Catch)
-    # add_executable(test_all tests-main.cpp)
-    # target_link_libraries(test_all
-    #     Catch2::Catch2
-    #     CPlusPlus::Utils
-    #     CPlusPlus::Solutions
-    #     # CPlusPlus::UserInterface
-    # )
-    # add_subdirectory(tests)
-    # catch_discover_tests(test_all)
-    # add_custom_command(TARGET test_all POST_BUILD
-    #     COMMAND ctest
-    #             --break
-    #             --abort
-    #             --reporter console
-    #             --order rand
-    #             --use-colour yes
-    #     DEPENDS CPlusPlusExe
-    # )
+    enable_testing(TRUE)
+    add_subdirectory(tests)
 endif()
 
 

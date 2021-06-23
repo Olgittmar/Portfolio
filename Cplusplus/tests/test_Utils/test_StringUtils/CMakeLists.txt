@@ -1,5 +1,10 @@
 message(STATUS "Generating tests for StringUtils component...")
-target_sources(test_all PUBLIC
-    test_StringUtils.cpp
+
+add_executable(testStringUtilsExe test_StringUtils.cpp)
+add_test(NAME test_string_utils COMMAND testStringUtilsExe)
+target_link_libraries(testStringUtilsExe PUBLIC
+    Qt6::Test
+    CPlusPlus::Utils
 )
+
 message(STATUS "Finished generating tests for StringUtils.")

@@ -15,7 +15,6 @@ target_sources(Utils
 
 add_subdirectory(StringUtils)
 add_subdirectory(Coordinates)
-add_subdirectory(TestingUtils)
 
 install(TARGETS Utils
     EXPORT UtilsTargets
