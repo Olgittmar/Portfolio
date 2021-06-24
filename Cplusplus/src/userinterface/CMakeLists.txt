@@ -24,7 +24,7 @@ target_sources(UserInterface
         ${CMAKE_CURRENT_SOURCE_DIR}/MainWindow/MainWindow.cpp
 )
 
-target_link_libraries(UserInterface
+target_link_libraries(UserInterface PRIVATE
     Qt6::Core
     Qt6::Widgets
 )

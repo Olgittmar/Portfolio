@@ -50,16 +50,16 @@ Line::belowLine( const Line& theLine ) {
 Point
 Line::leftOfLine( const Line& theLine ) {
     return Point(
-        min( theLine.start().x(),
-        theLine.end().x() ) - 1, theLine.midpoint().y()
+        min( theLine.start().x(), theLine.end().x() ) - 1,
+        theLine.midpoint().y()
     );
 }
 
 Point
 Line::rightOfLine( const Line& theLine ) {
     return Point(
-        max( theLine.start().x(),
-        theLine.end().x() ) + 1, theLine.midpoint().y()
+        max( theLine.start().x(), theLine.end().x() ) + 1,
+        theLine.midpoint().y()
     );
 }
 

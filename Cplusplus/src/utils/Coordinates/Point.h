@@ -26,6 +26,7 @@ class Point {
     };
 
     static vector<Point> str_to_points( const string& str, const char delimiter, const char subDelimiter );
+    std::string to_string() const;
 
     inline int x() const { return _x; }
     inline int y() const { return _y; }

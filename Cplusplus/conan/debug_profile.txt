@@ -11,3 +11,4 @@
 [build_requires]
 [env]
 CONAN_CMAKE_GENERATOR=Ninja
+CONAN_COLOR_DISPLAY=1

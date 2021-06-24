@@ -23,9 +23,8 @@ subSplit( const string& str, const char delimiter, const char subDelimiter, vect
     while ( getline( iss, item, delimiter ) ) {
         istringstream subiss( item );
         while ( getline(subiss, subItem, subDelimiter ) ) {
-	        item += subDelimiter + subItem;
+    	    out.push_back( subItem );
         }
-    	out.push_back( item );
     }
 }
 

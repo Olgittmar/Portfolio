@@ -5,7 +5,7 @@ from conans.errors import ConanException
 
 class CPlusPlusConan(ConanFile):
     settings = "os","compiler","build_type","arch"
-    requires = "qt/[>=6.1.1]" # "catch2/[>=2.13.4]",
+    requires = "qt/[>=6.1.1]"
     # The 'qt' generator creates the qt.conf file, which is needed to find several required qt components
     generators = "qt", "cmake", "cmake_find_package", "cmake_paths", "CMakeToolchain", "CMakeDeps"
     default_options = {"*:shared": True}

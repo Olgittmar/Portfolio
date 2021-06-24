@@ -140,10 +140,9 @@ if(ENABLE_CPPCHECK)
     find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
     if(CMAKE_CXX_CPPCHECK)
         list(APPEND CMAKE_CXX_CPPCHECK
-        "--enable=warning"
-        "--library=qt"
-        "--project=compile_commands.json"
-        "--cppcheck-build-dir=${CMAKE_BINARY_DIR}"
+        --enable=warning
+        --library=qt
+        --project=compile_commands.json
         )
     else()
         message(SEND_ERROR "cppcheck enabled but program not found")

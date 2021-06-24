@@ -4,8 +4,6 @@
 
 // Own Qt stuff
 #include <MyApp.h>
-#include <QCoreApplication>
-// #include "src/userinterface/MyApp/MyApp.h"
 
 // Qt
 // #include <QObject>
@@ -15,11 +13,12 @@
 int
 main( int argc, char* argv[] )
 {
-    using namespace std;
-    cout << "Running main!" << endl;
-
-    UserInterface::MyApp app(argc, argv);
+    std::cout << "Running main!" << std::endl;
+    QScopedPointer<UserInterface::MyApp> app( new UserInterface::MyApp(argc, argv) );
+    app->setApplicationVersion(QT_VERSION_STR);
+    app->setApplicationName("CPlusPlusSolutionRunner");
+    app->setApplicationDisplayName("C++ solution runner");
     // QCoreApplication::setApplicationVersion(QT_VERSION_STR);
 
-    return app.exec();
+    return app->exec();
 }

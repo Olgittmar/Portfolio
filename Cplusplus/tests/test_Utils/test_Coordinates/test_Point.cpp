@@ -46,19 +46,22 @@ TestPoint::str_to_points()
             utils::Point(-6,7),
             utils::Point(8,-9)
         });
-    QCOMPARE( utils::Point::str_to_points(testString, ' ', '\n'), expectedResult );
+    auto res = utils::Point::str_to_points(testString, '\n', ' ');
+    QCOMPARE( res, expectedResult );
 }
 
 void
 TestPoint::operatorOStrm()
 {
-    std::string expectedResult = "(2,3)";
+    std::string expectedResult = "(-2,3)";
     std::string resultString;
-    std::stringstream ss(resultString);
-    ss << utils::Point(2,3);
+    std::stringstream ss;
+    ss << utils::Point(-2,3);
+    ss >> resultString;
     QCOMPARE(resultString, expectedResult);
 }
 
+// --------------------------------------------------------------------------
 // --------------------------------------------------------------------------
 
 QTEST_MAIN(TestPoint)

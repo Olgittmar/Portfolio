@@ -21,8 +21,8 @@ class Line {
     inline Point start() const { return _start; }
     inline Point end() const { return _end; }
     inline Point midpoint() const {
-        return Point( _start.x() + (int)round( dx()/2 ),
-                      _start.y() + (int)round( dy()/2 ) ); }
+        return Point( _start.x() + (int)round( dx()/2.0 ),
+                      _start.y() + (int)round( dy()/2.0 ) ); }
 
     static Point start( const Line& theLine );
     static Point end( const Line& theLine );
