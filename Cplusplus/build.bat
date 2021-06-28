@@ -44,18 +44,19 @@ if {%1}=={} goto :BUILDRELEASE
 goto :eof
 
 :BUILDDEBUG
+echo installing dependencies...
 conan install ./conan --install-folder ./build/debug --profile ./conan/debug_profile.txt --build=outdated
 if %ERRORLEVEL% NEQ 0 goto :ERROR
-@REM not entirely sure what 'init' does, as it doesn't seem to modify anything in either the build or source tree.
-@REM but it somehow resulted in better error messages from conan.
-conan config init
-if %ERRORLEVEL% NEQ 0 goto :ERROR
+echo configuring...
 conan build ./conan --configure --build-folder ./build/debug -sf . -if ./build/debug --package-folder ./install/debug
 if %ERRORLEVEL% NEQ 0 goto :ERROR
+echo building...
 conan build ./conan --build --build-folder ./build/debug -sf . -if ./build/debug --package-folder ./install/debug
 if %ERRORLEVEL% NEQ 0 goto :ERROR
+echo testing...
 conan build ./conan --test --build-folder ./build/debug -sf . -if ./build/debug --package-folder ./install/debug
 if %ERRORLEVEL% NEQ 0 goto :ERROR
+echo installing...
 conan build ./conan --install --build-folder ./build/debug -sf . -if ./build/debug --package-folder ./install/debug
 if %ERRORLEVEL% NEQ 0 goto :ERROR
 goto :DEBUGBUILT
@@ -77,4 +78,5 @@ goto :RELEASEBUILT
 
 :ERROR
 echo An error occured!
+echo %ERRORLEVEL%
 goto :eof

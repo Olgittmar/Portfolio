@@ -1,24 +1,12 @@
-#include <QTest>
+// Own
+#include <test_Point.h>
 // Std
 #include <string>
 #include <sstream>
-// Own
-#include <Point.h>
 
-// Not very meaningful testClass, Point is by design really simple
-// I'm also unsure how to write tests for constructors and operators...
-class TestPoint: public QObject
-{
-    Q_OBJECT
-  private slots:
-    void operatorEquals();
-    void str_to_points();
-    void operatorOStrm();
-};
 // --------------------------------------------------------------------------
 // TEST DATA
 // --------------------------------------------------------------------------
-
 
 // --------------------------------------------------------------------------
 // TESTS
@@ -62,7 +50,5 @@ TestPoint::operatorOStrm()
 }
 
 // --------------------------------------------------------------------------
-// --------------------------------------------------------------------------
-
 QTEST_MAIN(TestPoint)
-#include "test_Point.moc"
+// --------------------------------------------------------------------------

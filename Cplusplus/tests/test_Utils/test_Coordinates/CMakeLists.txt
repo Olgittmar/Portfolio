@@ -1,6 +1,9 @@
 message(STATUS "Generating tests for Coordinates component...")
 
-add_executable(testPointExe test_Point.cpp)
+add_executable(testPointExe
+    test_Point.h
+    test_Point.cpp
+)
 add_test(NAME test_point COMMAND testPointExe)
 target_link_libraries(testPointExe
   PUBLIC
@@ -9,7 +12,10 @@ target_link_libraries(testPointExe
     CPlusPlus::Utils
 )
 
-add_executable(testLineExe test_Line.cpp)
+add_executable(testLineExe
+    test_Line.h
+    test_Line.cpp
+)
 add_test(NAME test_line COMMAND testLineExe)
 target_link_libraries(testLineExe
   PUBLIC
@@ -18,7 +24,10 @@ target_link_libraries(testLineExe
     CPlusPlus::Utils
 )
 
-add_executable(testPolygonExe test_Polygon.cpp)
+add_executable(testPolygonExe
+    test_Polygon.h
+    test_Polygon.cpp
+)
 add_test(NAME test_polygon COMMAND testPolygonExe)
 target_link_libraries(testPolygonExe
   PUBLIC

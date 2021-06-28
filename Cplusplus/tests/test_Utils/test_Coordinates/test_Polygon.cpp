@@ -1,13 +1,55 @@
-#include <QTest>
 // Own
-#include <Polygon.h>
+#include <test_Polygon.h>
+// --------------------------------------------------------------------------
+// TEST DATA
+// --------------------------------------------------------------------------
 
-class TestPolygon: public QObject
+void
+TestPolygon::initTestCase_data()
 {
-  Q_OBJECT
-  private slots:
+    QTest::addColumn<QVector<utils::Point>>("");
+}
 
-};
+void
+TestPolygon::classify_data()
+{
 
+}
+
+// --------------------------------------------------------------------------
+// TESTS
+// --------------------------------------------------------------------------
+
+void
+TestPolygon::initPolygon()
+{
+
+}
+
+void
+TestPolygon::classify()
+{
+
+}
+
+void
+TestPolygon::addPoint()
+{
+
+}
+
+void
+TestPolygon::clear()
+{
+
+}
+
+void
+TestPolygon::readPolygon()
+{
+
+}
+
+// --------------------------------------------------------------------------
 QTEST_MAIN(TestPolygon)
-#include "test_Polygon.moc"
+// --------------------------------------------------------------------------

@@ -1,6 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
+#pragma once
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QString>
@@ -38,4 +36,3 @@ class MainWindow : public QMainWindow
     QString outFile;
     int selectedSolution;
 };
-#endif

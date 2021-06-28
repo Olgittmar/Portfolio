@@ -28,6 +28,7 @@ class Polygon {
     inline void clear() { _vertices.clear(); };
     static void readPolygon( istream& in, const int numLines, utils::Polygon& out );
 
+    // TODO: consider adding STL-style Polygon iterator, it is a container class after all.
   protected:
   private:
     // The vertices that make up this polygon,

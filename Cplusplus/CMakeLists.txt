@@ -40,8 +40,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Options
 option(ENABLE_TESTING "Enable building of test" TRUE )
 option(ENABLE_SANITIZER "Use compiler sanitizer" TRUE )
-option(ENABLE_CPPCHECK "Enable testing with cppcheck" TRUE )
-option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" TRUE )
+option(ENABLE_CPPCHECK "Enable testing with cppcheck" FALSE )
+option(ENABLE_CLANG_TIDY "Enable testing with clang-tidy" FALSE )
 option(DETAILED_BUILD "Verbose building" FALSE ) # Not yet implemented
 
 # --------------------------------------------------------------------------------------
@@ -59,6 +59,7 @@ message("=========================================")
 message("Build type:       \t ${CMAKE_BUILD_TYPE}")
 message("Compiler:         \t ${CMAKE_CXX_COMPILER_ID}")
 message("Version:          \t ${PROJECT_VERSION}")
+message("Build dir:        \t ${CMAKE_BINARY_DIR}")
 message("Install prefix:   \t ${CMAKE_INSTALL_PREFIX}")
 message("-----------------------------------------")
 message("Sanitizers:       \t ${ENABLE_SANITIZER}")
@@ -67,6 +68,49 @@ message("Clang-tidy:       \t ${ENABLE_CLANG_TIDY}")
 message("Cppcheck:         \t ${ENABLE_CPPCHECK}")
 message("Detailed build:   \t ${DETAILED_BUILD}")
 message("-----------------------------------------")
+
+# ---------------------------------------------------------------------------
+
+if(DETAILED_BUILD)
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        add_compile_options("-v")
+    endif()
+endif()
+
+if(ENABLE_SANITIZER)
+    set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
+    if(SANITIZER)
+        if(SANITIZER MATCHES "(Address)")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+        endif()
+    endif()
+endif()
+
+if(ENABLE_CPPCHECK)
+    find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck REQUIRED)
+    if(CMAKE_CXX_CPPCHECK)
+        list(APPEND CMAKE_CXX_CPPCHECK
+        --enable=performance
+        --library=qt
+        --project=${CMAKE_BINARY_DIR}/compile_commands.json
+        --platform=win64
+        --quiet
+        )
+    else()
+        message(SEND_ERROR "cppcheck enabled but program not found")
+    endif()
+endif()
+
+if(ENABLE_CLANG_TIDY)
+    find_program(CLANGTIDY clang-tidy-vs REQUIRED)
+    if(CLANGTIDY)
+        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY}
+        -p ${CMAKE_BINARY_DIR}
+    )
+    else()
+        message(SEND_ERROR "clang-tidy enabled but program not found")
+    endif()
+endif()
 
 # ---------------------------------------------------------------------------
 # BUILD
@@ -119,41 +163,3 @@ add_custom_command(TARGET CPlusPlusExe POST_BUILD
 )
 
 # -----------------------------------------------------------------------------------------
-# My formatter does not play nice with cmake code :/
-
-if(DETAILED_BUILD)
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        add_compile_options("-v")
-    endif()
-endif()
-
-if(ENABLE_SANITIZER)
-    set(SANITIZER ${CONAN_SETTINGS_COMPILER_SANITIZER})
-    if(SANITIZER)
-        if(SANITIZER MATCHES "(Address)")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-        endif()
-    endif()
-endif()
-
-if(ENABLE_CPPCHECK)
-    find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
-    if(CMAKE_CXX_CPPCHECK)
-        list(APPEND CMAKE_CXX_CPPCHECK
-        --enable=warning
-        --library=qt
-        --project=compile_commands.json
-        )
-    else()
-        message(SEND_ERROR "cppcheck enabled but program not found")
-    endif()
-endif()
-
-if(ENABLE_CLANG_TIDY)
-    find_program(CLANGTIDY clang-tidy)
-    if(CLANGTIDY)
-        set(CMAKE_CXX_CLANG_TIDY ${CLANGTIDY})
-    else()
-        message(SEND_ERROR "clang-tidy enabled but program not found")
-    endif()
-endif()
