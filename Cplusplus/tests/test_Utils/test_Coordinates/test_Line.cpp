@@ -14,18 +14,18 @@ TestLine::initTestCase_data()
     utils::Point downRight(1,-1);
     utils::Point upLeft(-1, 1);
     utils::Point upRight(1, 1);
-    QTest::addRow("default") << utils::Line() << utils::Point() << utils::Point();
-    QTest::addRow("Diagonal with slope Quadrant = 1")
+    QTest::newRow("default") << utils::Line() << utils::Point() << utils::Point();
+    QTest::newRow("Diagonal with slope Quadrant = 1")
         << utils::Line(downLeft, upRight) << downLeft << upRight;
-    QTest::addRow("Diagonal with slope Quadrant = 2")
+    QTest::newRow("Diagonal with slope Quadrant = 2")
         << utils::Line(downRight, upLeft) << downRight << upLeft;
-    QTest::addRow("Diagonal with slope Quadrant = 3")
+    QTest::newRow("Diagonal with slope Quadrant = 3")
         << utils::Line(upRight, downLeft) << upRight << downLeft;
-    QTest::addRow("Diagonal with slope Quadrant = 4")
+    QTest::newRow("Diagonal with slope Quadrant = 4")
         << utils::Line(upLeft, downRight) << upLeft << downRight;
-    QTest::addRow("Horizontal")
+    QTest::newRow("Horizontal")
         << utils::Line( -1, 0, 1, 0 ) << utils::Point(-1, 0) << utils::Point(1, 0);
-    QTest::addRow("Vertical")
+    QTest::newRow("Vertical")
         << utils::Line( 0, -1, 0, 1 ) << utils::Point(0, -1) << utils::Point(0, 1);
 }
 
@@ -37,18 +37,18 @@ TestLine::inHRange_data()
     QTest::addColumn<utils::Point>("extPoint");
     QTest::addColumn<bool>("expected");
 
-    QTest::addRow("aboveLine")     << line << utils::Line::aboveLine(line)     << true;
-    QTest::addRow("belowLine")     << line << utils::Line::belowLine(line)     << true;
-    QTest::addRow("leftOfLine")    << line << utils::Line::leftOfLine(line)    << false;
-    QTest::addRow("rightOfLine")   << line << utils::Line::rightOfLine(line)   << false;
-    QTest::addRow("aboveMidpoint") << line << utils::Line::aboveMidpoint(line) << true;
-    QTest::addRow("belowMidpoint") << line << utils::Line::belowMidpoint(line) << true;
+    QTest::newRow("aboveLine")     << line << utils::Line::aboveLine(line)     << true;
+    QTest::newRow("belowLine")     << line << utils::Line::belowLine(line)     << true;
+    QTest::newRow("leftOfLine")    << line << utils::Line::leftOfLine(line)    << false;
+    QTest::newRow("rightOfLine")   << line << utils::Line::rightOfLine(line)   << false;
+    QTest::newRow("aboveMidpoint") << line << utils::Line::aboveMidpoint(line) << true;
+    QTest::newRow("belowMidpoint") << line << utils::Line::belowMidpoint(line) << true;
     if( qAbs(line.end().x() - line.start().x()) >= 2 ){
-        QTest::addRow("leftOfMidpoint")  << line << utils::Line::leftOfMidpoint(line)  << true;
-        QTest::addRow("rightOfMidpoint") << line << utils::Line::rightOfMidpoint(line) << true;
+        QTest::newRow("leftOfMidpoint")  << line << utils::Line::leftOfMidpoint(line)  << true;
+        QTest::newRow("rightOfMidpoint") << line << utils::Line::rightOfMidpoint(line) << true;
     } else {
-        QTest::addRow("leftOfMidpoint")  << line << utils::Line::leftOfMidpoint(line)  << false;
-        QTest::addRow("rightOfMidpoint") << line << utils::Line::rightOfMidpoint(line) << false;
+        QTest::newRow("leftOfMidpoint")  << line << utils::Line::leftOfMidpoint(line)  << false;
+        QTest::newRow("rightOfMidpoint") << line << utils::Line::rightOfMidpoint(line) << false;
     }
 }
 
@@ -60,19 +60,19 @@ TestLine::inVRange_data()
     QTest::addColumn<utils::Point>("extPoint");
     QTest::addColumn<bool>("expected");
 
-    QTest::addRow("aboveLine")   << line << utils::Line::aboveLine(line)   << false;
-    QTest::addRow("belowLine")   << line << utils::Line::belowLine(line)   << false;
-    QTest::addRow("leftOfLine")  << line << utils::Line::leftOfLine(line)  << true;
-    QTest::addRow("rightOfLine") << line << utils::Line::rightOfLine(line) << true;
+    QTest::newRow("aboveLine")   << line << utils::Line::aboveLine(line)   << false;
+    QTest::newRow("belowLine")   << line << utils::Line::belowLine(line)   << false;
+    QTest::newRow("leftOfLine")  << line << utils::Line::leftOfLine(line)  << true;
+    QTest::newRow("rightOfLine") << line << utils::Line::rightOfLine(line) << true;
     if( qAbs(line.end().y() - line.start().y()) >= 2 ){
-        QTest::addRow("aboveMidpoint") << line << utils::Line::aboveMidpoint(line) << true;
-        QTest::addRow("belowMidpoint") << line << utils::Line::belowMidpoint(line) << true;
+        QTest::newRow("aboveMidpoint") << line << utils::Line::aboveMidpoint(line) << true;
+        QTest::newRow("belowMidpoint") << line << utils::Line::belowMidpoint(line) << true;
     } else {
-        QTest::addRow("aboveMidpoint") << line << utils::Line::aboveMidpoint(line) << false;
-        QTest::addRow("belowMidpoint") << line << utils::Line::belowMidpoint(line) << false;
+        QTest::newRow("aboveMidpoint") << line << utils::Line::aboveMidpoint(line) << false;
+        QTest::newRow("belowMidpoint") << line << utils::Line::belowMidpoint(line) << false;
     }
-    QTest::addRow("leftOfMidpoint")  << line << utils::Line::leftOfMidpoint(line)  << true;
-    QTest::addRow("rightOfMidpoint") << line << utils::Line::rightOfMidpoint(line) << true;
+    QTest::newRow("leftOfMidpoint")  << line << utils::Line::leftOfMidpoint(line)  << true;
+    QTest::newRow("rightOfMidpoint") << line << utils::Line::rightOfMidpoint(line) << true;
 }
 
 void
@@ -85,44 +85,44 @@ TestLine::intersects_data()
     QTest::addColumn<utils::Point>("extPoint");
     QTest::addColumn<bool>("expected");
 
-    QTest::addRow("start") << line << start << true;
-    QTest::addRow("end") << line << end << true;
-    QTest::addRow("aboveLine") << line << utils::Line::aboveLine(line) << false;
-    QTest::addRow("belowLine") << line << utils::Line::belowLine(line) << false;
-    QTest::addRow("leftOfLine") << line << utils::Line::leftOfLine(line) << true;
-    QTest::addRow("rightOfLine") << line << utils::Line::rightOfLine(line) << false;
+    QTest::newRow("start") << line << start << true;
+    QTest::newRow("end") << line << end << true;
+    QTest::newRow("aboveLine") << line << utils::Line::aboveLine(line) << false;
+    QTest::newRow("belowLine") << line << utils::Line::belowLine(line) << false;
+    QTest::newRow("leftOfLine") << line << utils::Line::leftOfLine(line) << true;
+    QTest::newRow("rightOfLine") << line << utils::Line::rightOfLine(line) << false;
     
-    QTest::addRow("leftOfMidPoint") << line << utils::Line::leftOfMidpoint(line) << true;
+    QTest::newRow("leftOfMidPoint") << line << utils::Line::leftOfMidpoint(line) << true;
     if( start.y() == end.y() && qAbs( end.x() - start.x() ) >= 2 ){
-        QTest::addRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << true;
+        QTest::newRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << true;
     } else {
-        QTest::addRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;
+        QTest::newRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;
     }
     
     switch( line.slopeQuadrant() ){
     case 1:
     case 3:
     {
-        QTest::addRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << true;
-        QTest::addRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << false;
+        QTest::newRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << true;
+        QTest::newRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << false;
     }
     break;
     case 2:
     case 4:
     {
-        QTest::addRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << false;
-        QTest::addRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << true;
+        QTest::newRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << false;
+        QTest::newRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << true;
     }
     break;
     case 0:
     default:
     {
         if( start.x() == end.x() && qAbs(end.y() - start.y()) >= 2 ){
-            QTest::addRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << true;
-            QTest::addRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << true;
+            QTest::newRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << true;
+            QTest::newRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << true;
         } else {
-            QTest::addRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << false;
-            QTest::addRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << false;
+            QTest::newRow("aboveMidPoint") << line << utils::Line::aboveMidpoint(line) << false;
+            QTest::newRow("belowMidPoint") << line << utils::Line::belowMidpoint(line) << false;
         }
     }
     }
@@ -138,39 +138,39 @@ TestLine::includes_data()
     QTest::addColumn<utils::Point>("extPoint");
     QTest::addColumn<bool>("expected");
 
-    QTest::addRow("start") << line << start << true;
-    QTest::addRow("end") << line << end << true;
-    QTest::addRow("midpoint") << line << line.midpoint() << true;
+    QTest::newRow("start") << line << start << true;
+    QTest::newRow("end") << line << end << true;
+    QTest::newRow("midpoint") << line << line.midpoint() << true;
 
-    QTest::addRow("aboveLine")       << line << utils::Line::aboveLine(line) << false;
-    QTest::addRow("belowLine")       << line << utils::Line::belowLine(line) << false;
-    QTest::addRow("leftOfLine")      << line << utils::Line::leftOfLine(line) << false;
-    QTest::addRow("rightOfLine")     << line << utils::Line::rightOfLine(line) << false;
+    QTest::newRow("aboveLine")       << line << utils::Line::aboveLine(line) << false;
+    QTest::newRow("belowLine")       << line << utils::Line::belowLine(line) << false;
+    QTest::newRow("leftOfLine")      << line << utils::Line::leftOfLine(line) << false;
+    QTest::newRow("rightOfLine")     << line << utils::Line::rightOfLine(line) << false;
 
     if( line.isAngled() || start == end ){
-        QTest::addRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << false;
-        QTest::addRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << false;
-        QTest::addRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << false;
-        QTest::addRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;
+        QTest::newRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << false;
+        QTest::newRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << false;
+        QTest::newRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << false;
+        QTest::newRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;
     } else if( start.y() == end.y() ) {
-        QTest::addRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << false;
-        QTest::addRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << false;
+        QTest::newRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << false;
+        QTest::newRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << false;
         if( qAbs( end.x() - start.x() ) >= 2 ){
-            QTest::addRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << true;
-            QTest::addRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << true;
+            QTest::newRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << true;
+            QTest::newRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << true;
         } else {
-            QTest::addRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << false;
-            QTest::addRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;        
+            QTest::newRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << false;
+            QTest::newRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;        
         }
     } else {
-        QTest::addRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << false;
-        QTest::addRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;
+        QTest::newRow("leftOfMidPoint")  << line << utils::Line::leftOfMidpoint(line) << false;
+        QTest::newRow("rightOfMidPoint") << line << utils::Line::rightOfMidpoint(line) << false;
         if( qAbs( end.y() - start.y() ) >= 2 ){
-            QTest::addRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << true;
-            QTest::addRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << true;
+            QTest::newRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << true;
+            QTest::newRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << true;
         } else {
-            QTest::addRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << false;
-            QTest::addRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << false;
+            QTest::newRow("aboveMidPoint")   << line << utils::Line::aboveMidpoint(line) << false;
+            QTest::newRow("belowMidPoint")   << line << utils::Line::belowMidpoint(line) << false;
         }
     }
 }

@@ -11,6 +11,38 @@ Polygon::Polygon(const string& str)
 
 Polygon::Polygon(const vector<Point>& points) : _vertices(points){}
 
+Polygon::_Iterator::reference
+Polygon::_Iterator::operator*() const
+{
+    if( m_it == _container.cend() - 1 ){
+        return Line( *m_it, *_container.cbegin() );
+    } else {
+        return Line( *m_it, *(m_it + 1) );
+    }
+}
+
+bool
+Polygon::operator==( const Polygon& other ) const
+{
+    if( numVertices() != other.numVertices() ){
+        return false;
+    }
+
+    auto myIt = cbegin();
+    auto otherIt = other.cbegin();
+    while( myIt != cend() && otherIt != other.cend() ) {
+        if( *myIt != *otherIt ){
+            return false;
+        }
+        // Encountered interesting crash here when incrementing the iterators inside the
+        // if-expression, not sure why, but suspect the while-condition tried to reference an invalid iterator.
+        // A case which the compiler optimized away when incrementing after the check.
+        ++myIt;
+        ++otherIt;
+    }
+    return true;
+}
+
 string
 Polygon::classify(const Point p) const
 {
@@ -18,37 +50,20 @@ Polygon::classify(const Point p) const
     if( _vertices.empty() ){
         return "out";
     }
-    // Only one vertice, then p can only be included if it is the same point.
-    // The edge case where we have 2 points should be included in the algorithm below,
-    // compiler will probably not figure it out, but performance should be plenty good in that case anyway.
-    if( _vertices.size() == 1 ){
-        if( _vertices.front() == p ){
-            return "on";
-        } else {
-            return "out";
-        }
-    }
-    Line line;
-    Point lineStart, lineEnd;
     int numIntersects = 0;
-    // We have enough vertices, so lets iterate through and see how many times
-    // a beam out from p will intersect the lines between our vertices.
-    auto it = _vertices.cbegin();
-    do {
-        lineStart = *(it++);
-        if ( it == _vertices.cend() ){
-            lineEnd = _vertices.front();
-        } else {
-            lineEnd = *(it++);
-        }
-        line = Line( lineStart, lineEnd );
+    // If the point on any of the lines that make up this polygon, we return 'on'
+    // If the beam from the point horizontally to the right intersects an odd number of lines
+    // then it must be inside the polygon.
+    // Note: The endpoints of lines will be counted twice, so hitting an acute edge will not
+    // produce a false positive.
+    for( auto line : *this ){
         if( line.includes(p) ){
             return "on";
         }
         if( line.intersects(p) ){
             numIntersects++;
         }
-    } while ( it != _vertices.cend() );
+    }
     if ( numIntersects % 2 != 0 ){
         return "in";
     } else {
