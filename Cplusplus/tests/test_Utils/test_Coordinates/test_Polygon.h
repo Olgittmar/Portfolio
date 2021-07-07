@@ -14,6 +14,7 @@ class TestPolygon: public QObject
     void initTestCase_data();
     void classify_data();
     void iteratePolygon_data();
+    void operatorOstrm_data();
 
     void initPolygon();
     void iteratePolygon();
@@ -22,4 +23,5 @@ class TestPolygon: public QObject
     void addPoint();
     void clear();
     void readPolygon();
+    void operatorOstrm();
 };

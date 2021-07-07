@@ -10,18 +10,116 @@
 // TEST DATA
 // --------------------------------------------------------------------------
 
+Q_DECLARE_METATYPE(utils::Polygon)
+Q_DECLARE_METATYPE(utils::Point)
+Q_DECLARE_METATYPE(utils::Line)
+
 void
 TestPolygon::initTestCase_data()
 {
+    QTest::addColumn<int>("index");
     QTest::addColumn<utils::Polygon>("polygon");
+    QTest::addColumn<std::string>("polygonStringRepresentation");
+    int indexer = 0;
 
-    QTest::newRow("Empty") << utils::Polygon();
+    QTest::newRow("Empty")
+        << indexer++
+        << utils::Polygon()
+        << std::string();
+    
+    QTest::newRow("Invalid string representation")
+        << indexer++
+        << utils::Polygon()
+        << std::string("  \n\t,%&'<string>' fisk\0 ");
+
+    QTest::newRow("Coordinates size too big")
+        << indexer++
+        << utils::Polygon()
+        << std::string( std::to_string( INT_MAX ) + "42" );
+
     QTest::newRow("Q1 triangle")
+        << indexer++
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(0,10),
             utils::Point(10,0)
-        });
+        })
+        << std::string("0 0\n0 10\n10 0");
+    
+    QTest::newRow("Q2 triangle")
+        << indexer++
+        << utils::Polygon({
+            utils::Point(0,0),
+            utils::Point(-10,0),
+            utils::Point(10,0)
+        })
+        << std::string("0 0\n-10 0\n10 0");
+    
+    QTest::newRow("Q3 triangle")
+        << indexer++
+        << utils::Polygon({
+            utils::Point(0,0),
+            utils::Point(0,-10),
+            utils::Point(-10,0)
+        })
+        << std::string("0 0\n0 -10\n-10 0");
+    
+    QTest::newRow("Q4 triangle")
+        << indexer++
+        << utils::Polygon({
+            utils::Point(0,0),
+            utils::Point(10,0),
+            utils::Point(0,-10)
+        })
+        << std::string("0 0\n10 0\n0 -10");
+    
+    QTest::newRow("Upright square")
+        << indexer++
+        << utils::Polygon({
+            utils::Point(-5,-5),
+            utils::Point(-5 ,5),
+            utils::Point( 5, 5),
+            utils::Point( 5,-5)
+        })
+        << std::string("-5 -5\n-5 5\n5 5\n5 -5");
+    
+    QTest::newRow("Diamond")
+        << indexer++
+        << utils::Polygon({
+            utils::Point(-10, 0),
+            utils::Point( 0, 10),
+            utils::Point( 10, 0),
+            utils::Point( 0,-10)
+        })
+        << std::string("-10 0\n0 10\n10 0\n0 -10");
+    
+    QTest::newRow("Star")
+        << indexer++
+        << utils::Polygon({
+            utils::Point(-7, -7),
+            utils::Point( -3, -2),
+            utils::Point( -10, 0),
+            utils::Point( -2, 3),
+            utils::Point( 0, 10),
+            utils::Point( 2, 3),
+            utils::Point( 10, 0),
+            utils::Point( 3, -2),
+            utils::Point( 7, -7),
+            utils::Point( 0, -3)
+        })
+        << std::string(
+            "-7 -7\n"
+            "-3 -2\n"
+            "-10 0\n"
+            "-2 3\n"
+            "0 10\n"
+            "2 3\n"
+            "10 0\n"
+            "3 -2\n"
+            "7 -7\n"
+            "0 -3"
+        );
+    
 }
 
 void
@@ -72,6 +170,10 @@ TestPolygon::classify_data()
     }
 }
 
+void
+TestPolygon::operatorOstrm_data()
+{
+}
 
 // --------------------------------------------------------------------------
 // TESTS
@@ -193,7 +295,27 @@ TestPolygon::classify()
 void
 TestPolygon::readPolygon()
 {
+    QFETCH_GLOBAL(utils::Polygon, polygon);
+    QFETCH_GLOBAL(std::string, polygonStringRepresentation);
+    try {
+        QCOMPARE( utils::Polygon(polygonStringRepresentation), polygon );
+    } catch( std::exception& e ) {
+        QFAIL( e.what() );
+    }
+}
 
+void
+TestPolygon::operatorOstrm()
+{
+    QFETCH_GLOBAL(int, index);
+    QFETCH_GLOBAL(utils::Polygon, polygon);
+    QFETCH_GLOBAL(std::string, polygonStringRepresentation);
+    std::stringstream ss;
+    ss << polygon;
+    if (index == 1 || index == 2){
+        QEXPECT_FAIL("", "An invalid string will produce an empty polygon", Continue );
+    }
+    QCOMPARE( ss.str(), polygonStringRepresentation);
 }
 
 // --------------------------------------------------------------------------

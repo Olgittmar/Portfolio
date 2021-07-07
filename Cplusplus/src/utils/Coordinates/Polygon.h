@@ -34,6 +34,7 @@ class Polygon {
     string classify( const Point p ) const;
 
     static void readPolygon( istream& in, const int numLines, Polygon& out );
+    friend ostream& operator<<(ostream& os, const Polygon& poly);
 
     struct ProxyLine {
         using pointer = Line*;

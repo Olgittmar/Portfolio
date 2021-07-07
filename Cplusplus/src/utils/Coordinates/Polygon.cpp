@@ -82,4 +82,16 @@ Polygon::readPolygon( istream& in, const int numLines, utils::Polygon& out ) {
     }
 }
 
+ostream&
+operator<<(ostream& os, const Polygon& poly)
+{
+    for( auto pIt = poly._vertices.cbegin(); pIt != poly._vertices.cend(); ++pIt ){
+        os << *pIt;
+        if( pIt != poly._vertices.cend() - 1 ){
+            os << '\n';
+        }
+    }
+    return os;
+}
+
 } // namespace utils

@@ -4,6 +4,8 @@
 #include <string>
 #include <sstream>
 
+Q_DECLARE_METATYPE(utils::Point)
+
 // --------------------------------------------------------------------------
 // TEST DATA
 // --------------------------------------------------------------------------
@@ -41,12 +43,10 @@ TestPoint::str_to_points()
 void
 TestPoint::operatorOStrm()
 {
-    std::string expectedResult = "(-2,3)";
-    std::string resultString;
+    std::string expectedResult = "-2 3";
     std::stringstream ss;
     ss << utils::Point(-2,3);
-    ss >> resultString;
-    QCOMPARE(resultString, expectedResult);
+    QCOMPARE( ss.str(), expectedResult);
 }
 
 // --------------------------------------------------------------------------

@@ -20,25 +20,34 @@ Point::str_to_points( const string& str, const char delimiter, const char subDel
 {
     vector<pair<int, int>> coords;
     vector<Point> out;
-    subSplit( str, delimiter, subDelimiter, coords );
-    out.resize( coords.size() );
-    // For every coordinate, emplace the corresponding Point in out.
-    transform( coords.cbegin(), coords.cend(), out.begin(),
-	       []( const pair<int, int>& c ) { return Point( c ); } );
+    try {
+        subSplit( str, delimiter, subDelimiter, coords );
+        out.resize( coords.size() );
+        // For every coordinate, emplace the corresponding Point in out.
+        transform( coords.cbegin(), coords.cend(), out.begin(),
+	           []( const pair<int, int>& c ) { return Point( c ); } );
+    } catch( const std::out_of_range& oor ) {
+        // TODO: add proper logging system.
+        cout << oor.what() << endl;
+        out.clear();
+    } catch( const std::invalid_argument& iarg ){
+        cout << iarg.what() << endl;
+        out.clear();
+    }
     return out;
 }
 
 ostream&
 operator<<(ostream& os, const Point& p)
 {
-    os << "(" << std::to_string(p.x()) << "," << std::to_string(p.y()) << ")";
+    os << p.to_string();
     return os;
 }
 
 std::string
 Point::to_string() const
 {
-    return ("(" + std::to_string(x()) + "," + std::to_string(y()) + ")");
+    return std::string( std::to_string(x()) + " "s + std::to_string(y()) );
 }
 
 }

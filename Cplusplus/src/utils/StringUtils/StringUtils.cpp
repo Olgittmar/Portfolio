@@ -32,15 +32,11 @@ void
 subSplit( const string& str, const char delimiter, const char subDelimiter, vector<pair<int, int>>& out )
 {
     istringstream iss( str );
-    string item, subItem;
+    string item;
+    pair<int,int> subItem;
     while ( getline( iss, item, delimiter ) ) {
-        int first, second; // I was promised that there would be no performance loss, but I don't trust the debug mode...
-        istringstream subiss(item);
-		getline( subiss, subItem, subDelimiter );
-		first = stoi( subItem.c_str() );
-    	getline( subiss, subItem, subDelimiter );
-    	second = stoi( subItem.c_str() );
-		out.emplace_back( first, second );
+        toIntPair( item, subDelimiter, subItem );
+		out.push_back( subItem );
     }
     out.shrink_to_fit();
 }
@@ -51,13 +47,9 @@ toIntPair(const string& str, const char delimiter, pair<int,int>& out)
     istringstream iss( str );
     string item;
     getline( iss, item, delimiter );
-    if ( !(out.first = atoi( item.c_str() ) ) ){
-	    exception( "Failed to convert item to int." );
-    }
+    out.first = stoi( item );
     getline( iss, item, delimiter );
-    if ( !(out.second = atoi( item.c_str() ) ) ){
-	    exception( "Failed to convert item to int." );
-    }
+    out.second = stoi( item );
 }
 
 //// Double check that we don't create a bunch of copies
