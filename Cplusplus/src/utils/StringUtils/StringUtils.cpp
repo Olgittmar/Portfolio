@@ -8,8 +8,7 @@ void
 split( const string& str, const char delimiter, vector<string>& out )
 {
     istringstream iss( str );
-    string item;
-    while ( getline( iss, item, delimiter ) ) {
+    for( string item; getline( iss, item, delimiter ); ) {
     	out.push_back( item );
     }
     out.shrink_to_fit();

@@ -35,8 +35,9 @@ Polygon::operator==( const Polygon& other ) const
             return false;
         }
         // Encountered interesting crash here when incrementing the iterators inside the
-        // if-expression, not sure why, but suspect the while-condition tried to reference an invalid iterator.
-        // A case which the compiler optimized away when incrementing after the check.
+        // if-expression. Because I haven't defined my operator++ for post-increments,
+        // the expression *(myIt++) isn't valid.
+        // TODO: fix this for prettier syntax
         ++myIt;
         ++otherIt;
     }

@@ -1,7 +1,7 @@
 #include "PointInPolygon.h"
 
 // Own
-#include <utils.h>
+#include <Polygon.h>
 
 namespace Solutions {
 

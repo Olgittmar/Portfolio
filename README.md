@@ -10,3 +10,9 @@ Feedback and tips on coding patterns, algorithm choices and general code improve
 A simple command line interface for running solutions to coding puzzles.
 ### Point in polygon
 Given the vertices of a polygon, and a number of points, checks whether each point is inside, outside or on the edge of the polygon.
+
+## CPlusPlus
+A simple GUI for running solutions to coding puzzles with specified input and output.
+(GUI allows textfile I/O for now, but further down the line I might expand to other options such as real-time evaluation, CLI etc.)
+### Point in polygon
+Given the vertices of a polygon, and a number of points, checks whether each point is inside, outside or on the edge of the polygon and returns a string with the results.

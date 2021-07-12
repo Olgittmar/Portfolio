@@ -1,12 +1,14 @@
 #pragma once
-
-#include "Coordinates/Point.h"
-#include "Coordinates/Line.h"
-#include "Coordinates/Polygon.h"
-#include "StringUtils/StringUtils.h"
+#include <concepts>
 
 namespace utils {
 // Generic utility stuff goes here
-// no implementations yet
+
+// Check if First is equal to any of Val in pack.
+template<typename First, typename ... Val>
+  requires (std::equality_comparable_with<First, Val> || ...)
+constexpr bool isAnyOf(const First& first, const Val& ... val) {
+    return ((first == val) || ...);
+};
 
 }
