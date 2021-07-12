@@ -7,9 +7,10 @@ namespace utils {
 void
 split( const string& str, const char delimiter, vector<string>& out )
 {
-    istringstream iss( str );
+    istringstream iss;
+    iss.str( str );
     for( string item; getline( iss, item, delimiter ); ) {
-    	out.push_back( item );
+    	out.push_back( item ); //! If str ends with delimiter, the empty string doesn't get appended to out.
     }
     out.shrink_to_fit();
 }

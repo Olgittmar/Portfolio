@@ -98,10 +98,10 @@ TestStringUtils::split()
         std::string res;
         auto strIt = out.cbegin();
         for( ; strIt != out.cend(); ++strIt ){
-            res += *strIt;
-            if( strIt != out.cend() - 1 ){
+            if( strIt != out.cbegin() ){
                 res += delimiter;
             }
+            res += *strIt;
         }
         QCOMPARE( res.c_str(), inputString.c_str() );
     } catch( const std::exception& e ) {
