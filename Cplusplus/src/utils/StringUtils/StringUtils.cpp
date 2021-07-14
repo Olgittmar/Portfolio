@@ -1,16 +1,18 @@
 #include "StringUtils.h"
+#include <utils.h>
 
 namespace utils {
 
-// Method for this first one from the infinite wisdom of stackOverflow: https://stackoverflow.com/a/237280
-// More elegant than what I could come up with. string.split should really be a std method though...
 void
 split( const string& str, const char delimiter, vector<string>& out )
 {
-    istringstream iss;
-    iss.str( str );
-    for( string item; getline( iss, item, delimiter ); ) {
-    	out.push_back( item ); //! If str ends with delimiter, the empty string doesn't get appended to out.
+    out.clear();
+    out.reserve( str.size() );
+    istringstream iss(str);
+    string item;
+    while( !iss.fail() && !iss.eof() ) {
+        getline( iss, item, delimiter );
+    	out.push_back( item );
     }
     out.shrink_to_fit();
 }
@@ -18,23 +20,32 @@ split( const string& str, const char delimiter, vector<string>& out )
 void
 subSplit( const string& str, const char delimiter, const char subDelimiter, vector<string>& out)
 {
+    out.clear();
+    out.reserve( str.size() );
     istringstream iss( str );
+    istringstream subiss;
     string item, subItem;
-    while ( getline( iss, item, delimiter ) ) {
-        istringstream subiss( item );
-        while ( getline(subiss, subItem, subDelimiter ) ) {
+    while ( !iss.fail() && !iss.eof() ) {
+        getline( iss, item, delimiter );
+        subiss.str( item );
+        while ( !subiss.fail() && !subiss.eof() ) {
+            getline(subiss, subItem, subDelimiter );
     	    out.push_back( subItem );
         }
     }
+    out.shrink_to_fit();
 }
 
 void
 subSplit( const string& str, const char delimiter, const char subDelimiter, vector<pair<int, int>>& out )
 {
+    out.clear();
+    out.reserve(str.size());
     istringstream iss( str );
     string item;
     pair<int,int> subItem;
-    while ( getline( iss, item, delimiter ) ) {
+    while ( !iss.fail() && !iss.eof() ) {
+        getline( iss, item, delimiter );
         toIntPair( item, subDelimiter, subItem );
 		out.push_back( subItem );
     }
@@ -55,7 +66,7 @@ toIntPair(const string& str, const char delimiter, pair<int,int>& out)
 //// Double check that we don't create a bunch of copies
 // We won't if the compiler uses return value optimization properly
 pair<int,int>
-strToIntPair( const string& str, const char delimiter )
+toIntPair( const string& str, const char delimiter )
 {
     pair<int, int> _ret;
     toIntPair( str, delimiter, _ret );

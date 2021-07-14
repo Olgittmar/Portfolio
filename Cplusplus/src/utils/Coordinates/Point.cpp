@@ -12,7 +12,7 @@ namespace utils {
 Point::Point( const int x, const int y ) :_x(x), _y(y) {}
 Point::Point( const pair<int,int>& coords ): _x(coords.first), _y(coords.second) {}
 Point::Point( const Point& other ) : _x( other.x() ), _y( other.y() ) {}
-Point::Point( const string& str ) : Point( strToIntPair(str, ' ') ) {}
+Point::Point( const string& str ) : Point( toIntPair(str, ' ') ) {}
 
 // Returns a vector of Points from the delimiter-separated pairs of coordinates separated by subDelimiter.
 vector<Point>
