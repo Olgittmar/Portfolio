@@ -1,17 +1,37 @@
+#include <random>
+#include <algorithm>
 // Own
 #include <test_PointInPolygon.h>
 #include <utils.h>
+#include <Point.h>
 
 // ----------------------------------------------------------------------------
 // TEST MANAGEMENT
 // ----------------------------------------------------------------------------
-// void
-// TestPointInPolygon::initTestCase()
-// {
-//     // QFETCH_GLOBAL(int, index);
-//     // QFETCH_GLOBAL(QString, testfile);
+void
+TestPointInPolygon::initTestCase()
+{
+    QFETCH_GLOBAL(MYTESTS, index);
+    QFETCH_GLOBAL(QString, testfile);
 
-// }
+    // Generates a random point with x, y in [INT_MIN, INT_MAX]
+    auto randPoint = [](){
+        return utils::Point( utils::randInt(), utils::randInt() );
+    };
+    
+    if( index == RandGen ){
+
+    } else if( utils::isAnyOf( index, RandGenSS, RandGenBM ) ){
+
+        std::vector<utils::Point> vertices;
+        vertices.resize(utils::randInt(0, maxNumVertices));
+        std::generate(vertices.begin(), vertices.end(), randPoint);
+        
+        std::vector<utils::Point> testPoints;
+        testPoints.resize(utils::randInt(0, maxNumTestPoints));
+        std::generate(testPoints.begin(), testPoints.end(), randPoint);
+    }
+}
 // ----------------------------------------------------------------------------
 // TEST DATA
 // ----------------------------------------------------------------------------

@@ -77,18 +77,11 @@ TestStringUtils::initTestCase_data()
         << '\t'
         << ',';
 
-    auto num = [](){ // Apparently standard stuff for RNGs.
-        static std::uniform_int_distribution<int> distr{INT_MIN, INT_MAX};
-        static std::random_device engine;
-        static std::mt19937 noise{engine()};
-        return distr(noise);
-    };
-
     // Most elegant and compact way I could come up with to generate a string from a pattern
     // Should be possible to generate as constexpr with ranges/views, but couldn't wrap my head around it.
-    std::string lpl = std::to_string(num()) + ' ' + std::to_string(num());
+    std::string lpl = std::to_string(utils::randInt()) + ' ' + std::to_string(utils::randInt());
     for( int i = 2; i <= LARGE_NUM_POINTS; ++i ){
-        lpl += '\n' + std::to_string(num()) + ' ' + std::to_string(num());
+        lpl += '\n' + std::to_string(utils::randInt()) + ' ' + std::to_string(utils::randInt());
     }
     QTest::newRow( qt_getEnumName( LongPointList ))
         << LongPointList
@@ -142,8 +135,8 @@ TestStringUtils::toIntPair()
 
     // Generic usecase
     std::pair<int,int> out1, out2;
-    int x = rand();
-    int y = rand();
+    int x = utils::randInt();
+    int y = utils::randInt();
     out1 = utils::toIntPair( std::to_string(x) + ' ' + std::to_string(y), ' ');
     out2 = std::pair<int,int>(x, y);
     QCOMPARE( out1, out2 );
