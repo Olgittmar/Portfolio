@@ -10,6 +10,16 @@
 class TestPolygon: public QObject
 {
   Q_OBJECT
+  public:
+    enum MYTESTS {
+        Empty, Invalid,
+        Unreasonably_large_Coordinates,
+        Q1_Triangle, Q2_Triangle,
+        Q3_Triangle, Q4_Triangle,
+        Upright_Square, Diamond, Star
+    };
+    Q_ENUM(MYTESTS)
+
   private slots:
     void initTestCase_data();
     void classify_data();

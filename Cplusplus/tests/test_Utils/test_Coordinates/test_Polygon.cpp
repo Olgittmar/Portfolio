@@ -17,28 +17,28 @@ Q_DECLARE_METATYPE(utils::Line)
 void
 TestPolygon::initTestCase_data()
 {
-    QTest::addColumn<int>("index");
+    QTest::addColumn<MYTESTS>("index");
     QTest::addColumn<utils::Polygon>("polygon");
     QTest::addColumn<std::string>("polygonStringRepresentation");
-    int indexer = 0;
 
-    QTest::newRow("Empty")
-        << indexer++
+
+    QTest::newRow(qt_getEnumName(Empty))
+        << Empty
         << utils::Polygon()
         << std::string();
     
-    QTest::newRow("Invalid string representation")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Invalid))
+        << Invalid
         << utils::Polygon()
         << std::string("  \n\t,%&'<string>' fisk\0 ");
 
-    QTest::newRow("Coordinates size too big")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Unreasonably_large_Coordinates))
+        << Unreasonably_large_Coordinates
         << utils::Polygon()
         << std::string( std::to_string( INT_MAX ) + "42" );
 
-    QTest::newRow("Q1 triangle")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Q1_Triangle))
+        << Q1_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(0,10),
@@ -46,8 +46,8 @@ TestPolygon::initTestCase_data()
         })
         << std::string("0 0\n0 10\n10 0");
     
-    QTest::newRow("Q2 triangle")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Q2_Triangle))
+        << Q2_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(-10,0),
@@ -55,8 +55,8 @@ TestPolygon::initTestCase_data()
         })
         << std::string("0 0\n-10 0\n10 0");
     
-    QTest::newRow("Q3 triangle")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Q3_Triangle))
+        << Q3_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(0,-10),
@@ -64,8 +64,8 @@ TestPolygon::initTestCase_data()
         })
         << std::string("0 0\n0 -10\n-10 0");
     
-    QTest::newRow("Q4 triangle")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Q4_Triangle))
+        << Q4_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(10,0),
@@ -73,8 +73,8 @@ TestPolygon::initTestCase_data()
         })
         << std::string("0 0\n10 0\n0 -10");
     
-    QTest::newRow("Upright square")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Upright_Square))
+        << Upright_Square
         << utils::Polygon({
             utils::Point(-5,-5),
             utils::Point(-5 ,5),
@@ -83,8 +83,8 @@ TestPolygon::initTestCase_data()
         })
         << std::string("-5 -5\n-5 5\n5 5\n5 -5");
     
-    QTest::newRow("Diamond")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Diamond))
+        << Diamond
         << utils::Polygon({
             utils::Point(-10, 0),
             utils::Point( 0, 10),
@@ -93,8 +93,8 @@ TestPolygon::initTestCase_data()
         })
         << std::string("-10 0\n0 10\n10 0\n0 -10");
     
-    QTest::newRow("Star")
-        << indexer++
+    QTest::newRow(qt_getEnumName(Star))
+        << Star
         << utils::Polygon({
             utils::Point(-7, -7),
             utils::Point( -3, -2),
@@ -307,15 +307,20 @@ TestPolygon::readPolygon()
 void
 TestPolygon::operatorOstrm()
 {
-    QFETCH_GLOBAL(int, index);
+    QFETCH_GLOBAL(MYTESTS, index);
     QFETCH_GLOBAL(utils::Polygon, polygon);
     QFETCH_GLOBAL(std::string, polygonStringRepresentation);
-    std::stringstream ss;
-    ss << polygon;
-    if (index == 1 || index == 2){
-        QEXPECT_FAIL("", "An invalid string will produce an empty polygon", Continue );
+
+    try {
+        std::stringstream ss;
+        ss << polygon;
+        if ( index == Invalid || index == Unreasonably_large_Coordinates ){
+            QEXPECT_FAIL("", "An invalid string will produce an empty polygon, but shouldn't crash", Continue );
+        }
+        QCOMPARE( ss.str(), polygonStringRepresentation);
+    } catch( const std::exception& err ) {
+        QFAIL( err.what() );
     }
-    QCOMPARE( ss.str(), polygonStringRepresentation);
 }
 
 // --------------------------------------------------------------------------

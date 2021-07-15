@@ -1,8 +1,11 @@
 // Std
 #include <algorithm>
+#include <ranges>
+#include <random>
 // Own
 #include <test_StringUtils.h>
 
+#define LARGE_NUM_POINTS 10000
 
 // ----------------------------------------------------------------------------
 // TEST MANEGEMENT
@@ -21,68 +24,75 @@ TestStringUtils::cleanupTestCase()
 void
 TestStringUtils::initTestCase_data()
 {
-    QTest::addColumn<int>("index");
+    QTest::addColumn<MYTESTS>("index");
     QTest::addColumn<std::string>("inputString");
     QTest::addColumn<const char>("delimiter");
     QTest::addColumn<const char>("subdelimiter");
-    int indexer = 0;
-
-    QTest::newRow("Empty")
-        << indexer++ // index
+    
+    QTest::newRow(qt_getEnumName( Empty ))
+        << Empty // index
         << std::string() // inputString
         << '\n' // delimiter
         << ' '; // subdelimiter
     
-    QTest::newRow("Invalid")
-        << indexer++
+    QTest::newRow(qt_getEnumName( Invalid ))
+        << Invalid
         << std::string("\n\t0 -x&<string>\"fisk\n")
         << '\n'
         << ' ';
         
-    QTest::newRow("Delimiter only")
-        << indexer++
+    QTest::newRow(qt_getEnumName( DelimOnly ))
+        << DelimOnly
         << std::string("\n")
         << '\n'
         << ' ';
     
-    QTest::newRow("Extra whitespaces")
-        << indexer++
+    QTest::newRow(qt_getEnumName( ExtraWhitespace ))
+        << ExtraWhitespace
         << std::string("\n\t\t          2 3           \t\t\t\t\n\n")
         << '\n'
         << ' ';
     
-    QTest::newRow("Invalid termination")
-        << indexer++
+    QTest::newRow(qt_getEnumName( Invalid_termination ))
+        << Invalid_termination
         << std::string("1 2\n3 4\0\n5 6")
         << '\n'
         << ' ';
     
-    QTest::newRow("Point")
-        << indexer++
+    QTest::newRow(qt_getEnumName( Point ))
+        << Point
         << std::string("2 3")
         << '\n'
         << ' ';
     
-    QTest::newRow("Point list")
-        << indexer++
+    QTest::newRow(qt_getEnumName( PointList ))
+        << PointList
         << std::string("1 2\n3 4\n5 6")
         << '\n'
         << ' ';
         
-    QTest::newRow("Point list with non-standard (sub)delimiter")
-        << indexer++
+    QTest::newRow(qt_getEnumName( PointList_W_Non_Std_Delim ))
+        << PointList_W_Non_Std_Delim
         << std::string("1,2\t3,4\t5,6")
         << '\t'
         << ',';
 
-    // special case, not yet implemented
-    std::string longPointList;
-    for( int i = 0; i <= 10000;){
-        longPointList += std::to_string(++i) + ' ' + std::to_string(++i) + '\n';
+    auto num = [](){ // Apparently standard stuff for RNGs.
+        static std::uniform_int_distribution<int> distr{INT_MIN, INT_MAX};
+        static std::random_device engine;
+        static std::mt19937 noise{engine()};
+        return distr(noise);
+    };
+
+    // Most elegant and compact way I could come up with to generate a string from a pattern
+    // Should be possible to generate as constexpr with ranges/views, but couldn't wrap my head around it.
+    std::string lpl = std::to_string(num()) + ' ' + std::to_string(num());
+    for( int i = 2; i <= LARGE_NUM_POINTS; ++i ){
+        lpl += '\n' + std::to_string(num()) + ' ' + std::to_string(num());
     }
-    QTest::newRow("Looooong Point list")
-        << indexer++
-        << longPointList
+    QTest::newRow( qt_getEnumName( LongPointList ))
+        << LongPointList
+        << lpl
         << '\n'
         << ' ';
 }
@@ -94,7 +104,7 @@ TestStringUtils::initTestCase_data()
 void
 TestStringUtils::split()
 {
-    QFETCH_GLOBAL(int, index);
+    QFETCH_GLOBAL(MYTESTS, index);
     QFETCH_GLOBAL(std::string, inputString);
     QFETCH_GLOBAL(const char, delimiter);
 
@@ -126,7 +136,7 @@ TestStringUtils::split()
 void
 TestStringUtils::toIntPair()
 {
-    QFETCH_GLOBAL(int, index);
+    QFETCH_GLOBAL(MYTESTS, index);
     QFETCH_GLOBAL(std::string, inputString);
     QFETCH_GLOBAL(const char, subdelimiter);
 
@@ -139,8 +149,9 @@ TestStringUtils::toIntPair()
     QCOMPARE( out1, out2 );
 
     try {
-        if( utils::isAnyOf( index, 0, 1, 2, 3 ) ){
+        if( utils::isAnyOf( index, Empty, Invalid, DelimOnly, ExtraWhitespace ) ){
             // We should expect toIntPair to throw an exception if we use an invalid format.
+            // Note that InvalidTermination shouldn't throw an error, since we expect it to behave differently
             QVERIFY_EXCEPTION_THROWN( utils::toIntPair(inputString, subdelimiter, out1), std::invalid_argument );
             QVERIFY_EXCEPTION_THROWN( out2 = utils::toIntPair(inputString, subdelimiter ), std::invalid_argument );
         } else {
@@ -175,7 +186,7 @@ TestStringUtils::toIntPair()
 void
 TestStringUtils::subSplitToStrings()
 {
-    QFETCH_GLOBAL(int, index);
+    QFETCH_GLOBAL(MYTESTS, index);
     QFETCH_GLOBAL(std::string, inputString);
     QFETCH_GLOBAL(const char, delimiter);
     QFETCH_GLOBAL(const char, subdelimiter);
@@ -183,21 +194,17 @@ TestStringUtils::subSplitToStrings()
     std::vector<std::string> out;
     try {
         // Splitting to substrings should work for any valid std::string
-        if( false /* utils::isAnyOf( index, 0, 1, 2, 3 ) */ ){
+        utils::subSplit(inputString, delimiter, subdelimiter, out);
+        // An empty input should be the only element of out
+        if( inputString.empty() ) {
+            QVERIFY( ( !out.empty() && out.at(0) == inputString ) );
         } else {
-            utils::subSplit(inputString, delimiter, subdelimiter, out);
-
-            // An empty input should be the only element of out
-            if( inputString.empty() ) {
-                QVERIFY( ( !out.empty() && out.at(0) == inputString ) );
-            } else {
-                // For all other cases, we should find each item in order within the source string
-                std::string::size_type pos = 0;
-                for( auto item : out ){
-                    pos = inputString.find( item, pos );
-                    if( pos == inputString.npos ) {
-                        QFAIL((item + " not found in inputString").c_str());
-                    }
+            // For all other cases, we should find each item in order within the source string
+            std::string::size_type pos = 0;
+            for( auto item : out ){
+                pos = inputString.find( item, pos );
+                if( pos == inputString.npos ) {
+                    QFAIL((item + " not found in inputString").c_str());
                 }
             }
         }
@@ -213,15 +220,17 @@ TestStringUtils::subSplitToStrings()
 void
 TestStringUtils::subSplitToIntPairs()
 {
-
-    QFETCH_GLOBAL(int, index);
+    QFETCH_GLOBAL(MYTESTS, index);
     QFETCH_GLOBAL(std::string, inputString);
     QFETCH_GLOBAL(const char, delimiter);
     QFETCH_GLOBAL(const char, subdelimiter);
 
     std::vector<std::pair<int,int>> out;
     try {
-        if( false /* utils::isAnyOf( index, 0, 1, 2, 3 ) */ ){
+        if( utils::isAnyOf( index, Empty, Invalid, DelimOnly, ExtraWhitespace ) ){
+            // Should throw 'invalid stoi argument' exception on the same premise as toIntPair
+            // eg, numbers must be convertible to int and come in the order number->subdelimiter->number->delimiter->...
+            QVERIFY_EXCEPTION_THROWN( utils::subSplit(inputString, delimiter, subdelimiter, out), std::invalid_argument );
         } else {
             utils::subSplit(inputString, delimiter, subdelimiter, out);
 

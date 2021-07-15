@@ -10,6 +10,16 @@
 class TestStringUtils: public QObject
 {
   Q_OBJECT
+  public:
+    enum MYTESTS {
+    Empty, Invalid,
+    DelimOnly, ExtraWhitespace,
+    Invalid_termination, Point, PointList,
+    PointList_W_Non_Std_Delim,
+    LongPointList
+    };
+    Q_ENUM(MYTESTS);
+
   private slots:
     void initTestCase_data();
 
