@@ -4,12 +4,12 @@
 
 namespace utils {
 
-Polygon::Polygon(const string& str)
+Polygon::Polygon(const std::string& str)
 {
     this->_vertices = Point::str_to_points(str, '\n', ' ');
 }
 
-Polygon::Polygon(const vector<Point>& points) : _vertices(points){}
+Polygon::Polygon(const std::vector<Point>& points) : _vertices(points){}
 
 Polygon::_Iterator::reference
 Polygon::_Iterator::operator*() const
@@ -44,7 +44,7 @@ Polygon::operator==( const Polygon& other ) const
     return true;
 }
 
-string
+std::string
 Polygon::classify(const Point p) const
 {
     // No vertices, no points included
@@ -73,7 +73,7 @@ Polygon::classify(const Point p) const
 }
 
 void
-Polygon::readPolygon( istream& in, const int numLines, utils::Polygon& out ) {
+Polygon::readPolygon( std::istream& in, const int numLines, utils::Polygon& out ) {
     string line;
     utils::Point p;
     for( int i = 0; i < numLines; i++ ){
@@ -83,8 +83,8 @@ Polygon::readPolygon( istream& in, const int numLines, utils::Polygon& out ) {
     }
 }
 
-ostream&
-operator<<(ostream& os, const Polygon& poly)
+std::ostream&
+operator<<(std::ostream& os, const Polygon& poly)
 {
     for( auto pIt = poly._vertices.cbegin(); pIt != poly._vertices.cend(); ++pIt ){
         os << *pIt;

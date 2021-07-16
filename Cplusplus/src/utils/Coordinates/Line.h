@@ -5,7 +5,7 @@
 #include <math.h>
 
 // Own
-#include "Point.h"
+#include <Point.h>
 
 namespace utils {
 using namespace std;

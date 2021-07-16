@@ -4,7 +4,7 @@
 #include <string>
 
 // Own
-#include "../StringUtils/StringUtils.h"
+#include <StringUtils.h>
 
 namespace utils {
 using namespace std;

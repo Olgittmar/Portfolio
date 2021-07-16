@@ -1,15 +1,14 @@
 #include "StringUtils.h"
-#include <utils.h>
 
 namespace utils {
 
 void
-split( const string& str, const char delimiter, vector<string>& out )
+split( const std::string& str, const char delimiter, std::vector<std::string>& out )
 {
     out.clear();
     out.reserve( str.size() );
-    istringstream iss(str);
-    string item;
+    std::istringstream iss(str);
+    std::string item;
     while( !iss.fail() && !iss.eof() ) {
         getline( iss, item, delimiter );
     	out.push_back( item );
@@ -18,13 +17,13 @@ split( const string& str, const char delimiter, vector<string>& out )
 }
 
 void
-subSplit( const string& str, const char delimiter, const char subDelimiter, vector<string>& out)
+subSplit( const std::string& str, const char delimiter, const char subDelimiter, std::vector<std::string>& out)
 {
     out.clear();
     out.reserve( str.size() );
-    istringstream iss( str );
-    istringstream subiss;
-    string item, subItem;
+    std::istringstream iss( str );
+    std::istringstream subiss;
+    std::string item, subItem;
     while ( !iss.fail() && !iss.eof() ) {
         getline( iss, item, delimiter );
         subiss.str( item );
@@ -37,13 +36,13 @@ subSplit( const string& str, const char delimiter, const char subDelimiter, vect
 }
 
 void
-subSplit( const string& str, const char delimiter, const char subDelimiter, vector<pair<int, int>>& out )
+subSplit( const std::string& str, const char delimiter, const char subDelimiter, std::vector<std::pair<int, int>>& out )
 {
     out.clear();
     out.reserve(str.size());
-    istringstream iss( str );
-    string item;
-    pair<int,int> subItem;
+    std::istringstream iss( str );
+    std::string item;
+    std::pair<int,int> subItem;
     while ( !iss.fail() && !iss.eof() ) {
         getline( iss, item, delimiter );
         toIntPair( item, subDelimiter, subItem );
@@ -53,10 +52,10 @@ subSplit( const string& str, const char delimiter, const char subDelimiter, vect
 }
 
 void
-toIntPair(const string& str, const char delimiter, pair<int,int>& out)
+toIntPair(const std::string& str, const char delimiter, std::pair<int,int>& out)
 {
-    istringstream iss( str );
-    string item;
+    std::istringstream iss( str );
+    std::string item;
     getline( iss, item, delimiter );
     out.first = stoi( item );
     getline( iss, item, delimiter );
@@ -65,10 +64,10 @@ toIntPair(const string& str, const char delimiter, pair<int,int>& out)
 
 //// Double check that we don't create a bunch of copies
 // We won't if the compiler uses return value optimization properly
-pair<int,int>
-toIntPair( const string& str, const char delimiter )
+std::pair<int,int>
+toIntPair( const std::string& str, const char delimiter )
 {
-    pair<int, int> _ret;
+    std::pair<int, int> _ret;
     toIntPair( str, delimiter, _ret );
     return _ret;
 }
