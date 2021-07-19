@@ -8,9 +8,6 @@
 #include <iterator>
 // #include <algorithm>
 
-// Own
-#include <utils.h>
-
 namespace utils {
 
 // Replaces the content of out with the substrings separated by delimiter in str.

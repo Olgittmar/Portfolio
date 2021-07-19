@@ -8,6 +8,7 @@ add_test(NAME test_point_in_polygon COMMAND testPointInPolygonExe)
 target_link_libraries(testPointInPolygonExe
   PUBLIC
     Qt6::Core
+    Qt6::Gui # It's really only QPolygon we use here
     Qt6::Test
   PRIVATE
     CPlusPlus::Utils

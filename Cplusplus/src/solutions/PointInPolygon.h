@@ -2,12 +2,11 @@
 
 // Std
 #include <string>
-#include <iostream>
-#include <fstream>
+#include <sstream>
 
 namespace Solutions {
 
 std::string
-PointInPolygon( std::istream& in, std::ostream& out);
+PointInPolygon( std::istringstream& in, std::ostringstream& out);
 
 }

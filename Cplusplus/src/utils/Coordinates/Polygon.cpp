@@ -1,6 +1,6 @@
 #include "Polygon.h"
 
-#include "../StringUtils/StringUtils.h"
+#include <StringUtils.h>
 
 namespace utils {
 
@@ -74,10 +74,10 @@ Polygon::classify(const Point p) const
 
 void
 Polygon::readPolygon( std::istream& in, const int numLines, utils::Polygon& out ) {
-    string line;
+    std::string line;
     utils::Point p;
-    for( int i = 0; i < numLines; i++ ){
-        getline( in, line );
+    for( int i = 0; i < numLines; ++i ){
+        std::getline( in, line, '\n' );
         p = utils::Point( line );
         out.addPoint( p );
     }

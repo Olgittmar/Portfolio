@@ -6,35 +6,34 @@
 namespace Solutions {
 
 std::string
-PointInPolygon( std::istream& in, std::ostream& out)
+PointInPolygon( std::istringstream& in, std::ostringstream& out)
 {
-    using namespace std;
-    string line, ret;
-    int numVertices, numPoints;
-    bool readyToClassify = false;
+    std::string line;
     utils::Polygon poly;
     utils::Point testPoint;
 
-    while ( getline( in, line ) ){
-        if( readyToClassify ) {
-            if( ( numPoints = atoi( line.c_str() ) ) ) {
-                for( int i = 0; i < numPoints; i++) {
-                    getline( in, line );
-                    testPoint = utils::Point( line );
-                    ret += poly.classify( testPoint ) + '\n';
-                }
+    while ( std::getline(in, line, '\n') ) {
+        int numVertices = std::stoi( line );
+        if ( numVertices == 0 ){
+            break;
+        }
+        utils::Polygon::readPolygon( in, numVertices, poly );
+        if( !out.str().empty() ){
+            out << '\n';
+        }
+
+        std::getline( in, line, '\n' );
+        int numPoints = std::stoi( line );
+        for( int i = 0; i < numPoints; i++) {
+            std::getline( in, line, '\n' );
+            if( i > 0 ){
+                out << '\n';
             }
-            readyToClassify = false;
-        } else {
-            numVertices = atoi( line.c_str() );
-            if ( numVertices != 0 ){
-                utils::Polygon::readPolygon( in, numVertices, poly );
-                readyToClassify = true;
-            }
+            testPoint = utils::Point( line );
+            out << poly.classify( testPoint );
         }
     }
-    out << ret;
-    return ret;
+    return out.str();
 }
 
 }

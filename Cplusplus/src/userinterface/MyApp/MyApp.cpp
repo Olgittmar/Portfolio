@@ -62,8 +62,10 @@ MyApp::runSolution( const MainWindow::SolutionOptions solutionIndex, const QStri
         ostrmbuf = ofstrm.rdbuf();
     }
 
-    std::istream in( istrmbuf );
-    std::ostream out( ostrmbuf );
+    std::istringstream in;
+    in.set_rdbuf( istrmbuf );
+    std::ostringstream out;
+    out.set_rdbuf( ostrmbuf );
     // Make sure everything is ok before we begin processing
     if( in.good() && out.good() ){
         switch( solutionIndex ){

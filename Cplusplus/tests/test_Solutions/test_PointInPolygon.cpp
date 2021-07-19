@@ -21,9 +21,7 @@ TestPointInPolygon::pointsToQPolygon( const std::vector<utils::Point>& v ) const
     }
     return ret;
 }
-// ----------------------------------------------------------------------------
-// TEST MANAGEMENT
-// ----------------------------------------------------------------------------
+
 // Format for PointInPolygon input data should be something like
 // [numVertices] <--- polygon 1
 // V1
@@ -39,195 +37,175 @@ TestPointInPolygon::pointsToQPolygon( const std::vector<utils::Point>& v ) const
 // ...
 //
 // Note that PointInPolygon assumes delimiter = '\n' & subdelimiter = ' '
-
-// TODO: Qt Resource instead of file?
-void
-TestPointInPolygon::initTestCase()
+QString
+TestPointInPolygon::generatePIPTestData( bool stressTest, int maxNumPolygons, int maxNumVertices, int maxNumTestPoints)
 {
-    QFETCH_GLOBAL(MYTESTS, index);
-    if( !utils::isAnyOf(index, Generic, RandGen, RandGenST, RandGenBM) ){
-        // Nothing to do here.
-        return;
-    }
-
-    QFETCH_GLOBAL(QString, testfile);
-    QFile tf( testfile + QString(".in"), this );
-    if ( !tf.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
-	    qDebug() << "Failed to open test inputfile: " << testfile << ".in";
-        return; // Throw exception?
-    }
-
+    auto randPoint = []()
     {
-        std::vector<utils::Point> vertices, testPoints;
-        if ( index == RandGen ) {
-	        // Flaky setup for generic test,
-            // contents should preferably be completely unknown at time of test.
-            QTextStream out( &tf );
+        return utils::Point( utils::randInt(), utils::randInt() );
+    };
+    
+    // Generates and writes a Polygon as well as testPoints to textStream with correct format.
+    auto makeTestData = [maxNumVertices, maxNumTestPoints, stressTest, randPoint]( QTextStream& ts ) mutable
+    {
+        std::vector<utils::Point> pv( utils::randInt(3, maxNumVertices ) );
 
-            for( int i = 0; i <= utils::randInt(1, maxNumPolygons); ++i ){
-	            // Generate large complex polygon
-	            vertices.resize( utils::randInt( 1, reasonableNumPoints ) );
-	            std::generate( vertices.begin(), vertices.end(), randPoint );
-                // Write polygon
-                out << vertices.size() << delim;
-                for ( auto v : vertices ) {
-	                out << v.to_string().c_str() << delim;
-                }
-	            // Generate testpoints
-	            testPoints.resize( utils::randInt( 1, maxNumTestPoints ) );
-	            std::generate( testPoints.begin(), testPoints.end(), randPoint );
-                // Write testPoints
-                out << testPoints.size();
-                for ( auto p : testPoints ) {
-	                out << p.to_string().c_str() << delim;
-                }
-            }
-        } else if ( utils::isAnyOf( index, RandGenST, RandGenBM ) ) {
-            QTextStream out( &tf );
-
-            for( int i = 0; i <= maxNumPolygons; ++i ){
-	            // Generate large complex polygon
-	            vertices.resize( maxNumVertices );
-	            std::generate( vertices.begin(), vertices.end(), randPoint );
-                // Write polygon
-                out << vertices.size() << delim;
-                for ( auto v : vertices ) {
-	                out << v.to_string().c_str() << delim;
-                }
-	            // Generate testpoints
-	            testPoints.resize( maxNumTestPoints );
-	            std::generate( testPoints.begin(), testPoints.end(), randPoint );
-                // Write testPoints
-                out << testPoints.size();
-                for ( auto p : testPoints ) {
-	                out << p.to_string().c_str() << delim;
-                }
-            }
-            if( out.status() != QTextStream::Ok ){
-                qDebug() << "Failed to write to device.";
-            }
+        std::generate( pv.begin(), pv.end(), randPoint );
+        ts << QString::number( pv.size() ) << delim;
+        for ( auto v : pv ) {
+            ts << v.to_string().c_str() << delim;
         }
-        tf.close();
+
+        pv.resize( utils::randInt(3, maxNumTestPoints ) );
+
+        std::generate( pv.begin(), pv.end(), randPoint );
+        ts << QString::number( pv.size() ) << delim;
+        for ( auto v : pv ) {
+            ts << v.to_string().c_str() << delim;
+        }
+    };
+
+    QString ret;
+    QTextStream out( &ret );
+    const int numPolygons = utils::randInt( 1, maxNumPolygons );
+    for( int i = 0; i <= numPolygons; ++i ){
+        // Generate Polygon
+        makeTestData( out );
     }
+    out << '0';
 
-    if( index != RandGenBM ){
-        // Generate expected answers from contents of testfile using QPolygon
-        if ( !tf.open( QIODevice::ReadOnly | QIODevice::Text ) ) {
-	        qDebug() << "Failed to open test inputfile: " << testfile << ".in";
-            return;
-        }
-
-        QFile ansf( testfile + QString(".ans"), this );
-        if ( !ansf.open( QIODevice::WriteOnly | QIODevice::Text ) ) {
-	        qDebug() << "Failed to open test outputfile: " << testfile << ".ans";
-            return;
-        }
-
-        QTextStream in( &tf );
-        QTextStream out( &ansf );
-        int lineNum = 0;
-        int x, y, numVertices, numTestPoints;
-        bool ok;
-        QString line;
-        QStringList coordstr;
-        QPolygon poly;
-        QPoint testPoint;
-
-        while( !in.atEnd() ) {
-            in.readLineInto(&line);
-            // Read numVertices
-            numVertices = line.toInt(&ok);
-            if(!ok){
-                qDebug() << "Failed to read numVertices: " << lineNum;
-            }
-            ++lineNum;
-            // Construct polygon
-            poly.clear();
-            poly.resize(numVertices);
-            for(int i = 0; i < numVertices; ++i ){
-                in.readLineInto(&line);
-                coordstr = line.split(subdelim);
-                if( coordstr.size() != 2 ){
-                    qDebug() << "Unexpected number of arguments: " << lineNum;
-                }
-                x = coordstr.at(0).toInt(&ok);
-                if(!ok){
-                    qDebug() << "Failed to convert first argument to int: " << lineNum;
-                }
-                y = coordstr.at(1).toInt(&ok);
-                if(!ok){
-                    qDebug() << "Failed to convert second argument to int: " << lineNum;
-                }
-                poly.setPoint(i, x, y);
-                ++lineNum;
-            }
-            in.readLineInto(&line);
-            numTestPoints = line.toInt(&ok);
-            if(!ok){
-                qDebug() << "Failed to read numTestPoints: " << lineNum;
-            }
-            ++lineNum;
-            for( int i = 0; i < numTestPoints; ++i ){
-                in.readLineInto(&line);
-                coordstr = line.split(subdelim);
-                if( coordstr.size() != 2 ){
-                    qDebug() << "Unexpected number of arguments: " << lineNum;
-                }
-                x = coordstr.at(0).toInt(&ok);
-                if(!ok){
-                    qDebug() << "Failed to convert first argument to int: " << lineNum;
-                }
-                y = coordstr.at(1).toInt(&ok);
-                if(!ok){
-                    qDebug() << "Failed to convert second argument to int: " << lineNum;
-                }
-                testPoint = QPoint(x, y);
-                ++lineNum;
-
-                if( !poly.boundingRect().contains( testPoint ) ){
-                    out << "out" << delim;
-                } else if( poly.contains( testPoint ) ){
-                    //! Gotta check if contains(point) returns true if the point is on the polygon.
-                    out << "in" << delim;
-                } else if( poly.intersects( QPolygon( testPoint ) ) ){
-                    out << "on" << delim;
-                }
-            }
-        }
-        tf.close();
-        ansf.close();
-    }
+    return ret;
 }
+
+QString
+TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
+{
+    QString answers;
+    QPolygon poly;
+    QPoint testPoint;
+    QStringList lines = testData.split(delim);
+
+    auto getPoint = [lines]( QStringList::const_iterator lineIt ) -> QPoint {
+        QStringList coordstr = lineIt->split(subdelim);
+        QPoint ret;
+        bool ok;
+        if( coordstr.size() != 2 ){
+            qDebug() << "Unexpected number of arguments: " << (int)(lineIt - lines.cbegin());
+        }
+        ret.setX( coordstr.at(0).toInt(&ok) );
+        if(!ok){
+            qDebug() << "Failed to convert first argument to int: " << (int)(lineIt - lines.cbegin());
+        }
+        ret.setY( coordstr.at(1).toInt(&ok) );
+        if(!ok){
+            qDebug() << "Failed to convert second argument to int: " << (int)(lineIt - lines.cbegin());
+        }
+        return ret;
+    };
+
+    for( auto lineIt = lines.cbegin(); lineIt != lines.cend(); ) {
+        bool ok;
+        // Read numVertices
+        int numVertices = lineIt->toInt(&ok);
+        if(!ok){
+            qDebug() << "Failed to read numVertices: " << (int)(lineIt - lines.cbegin());
+            break;
+        } else if( numVertices == 0 ) {
+            break;
+        } else {
+            answers += '\n';
+        }
+
+        // Build polygon
+        poly.clear();
+        poly.resize(numVertices);
+        for(int i = 0; i < numVertices; ++i ){
+            poly.setPoint(i, getPoint( ++lineIt ));
+        }
+
+        // Read numTestPoints
+        int numTestPoints = (++lineIt)->toInt(&ok);
+        if(!ok){
+            qDebug() << "Failed to read numTestPoints: " << (int)(lineIt - lines.cbegin());
+        }
+
+        // Test points
+        for( int i = 0; i < numTestPoints; ++i ) {
+            if( i > 0 ){
+                answers += '\n';
+            }
+            testPoint = getPoint( ++lineIt );
+            if( !poly.boundingRect().contains( testPoint ) ){
+                answers += "out";
+            } else if( poly.contains( testPoint ) ){
+                //! Gotta check if contains(point) returns true if the point is on the QPolygon.
+                answers += "in";
+            } else if( poly.intersects( QPolygon( {testPoint} ) ) ){
+                answers += "on";
+            } else {
+                answers += "out";
+            }
+        }
+        ++lineIt;
+    }
+    return answers;
+}
+
+// ----------------------------------------------------------------------------
+// TEST MANAGEMENT
+// ----------------------------------------------------------------------------
+
+
 // ----------------------------------------------------------------------------
 // TEST DATA
 // ----------------------------------------------------------------------------
 void
 TestPointInPolygon::initTestCase_data()
 {
+
+
     QTest::addColumn<MYTESTS>("index");
-    QTest::addColumn<QString>("testfile");
-    
-    QTest::newRow(qt_getEnumName( Empty ))
+    QTest::addColumn<QString>("testdata");
+    QTest::addColumn<QString>("expected");
+    QString testData, expected;
+    auto me = QMetaEnum::fromType<MYTESTS>();
+
+    QTest::newRow(me.valueToKey( Empty ))
         << Empty
-        << testdir + "/empty";
-    QTest::newRow(qt_getEnumName( InvalidFormat ))
+        << ""
+        << "";
+    QTest::newRow(me.valueToKey( InvalidFormat ))
         << InvalidFormat
-        << testdir + "/inv";
-    QTest::newRow(qt_getEnumName( ExtraWhitespace ))
+        << "\t this*/shouldn't\\work \n0"
+        << "";
+    QTest::newRow(me.valueToKey( ExtraWhitespace ))
         << ExtraWhitespace
-        << testdir + "/ews";
-    QTest::newRow(qt_getEnumName( Generic ))
+        << "  \t \t3\n  0\t 0\n10  0\n\t0 10\n1\n 5   5\n 0\n\t"
+        << "in";
+    QTest::newRow(me.valueToKey( Generic ))
         << Generic
-        << testdir + "/gen0";
-    QTest::newRow(qt_getEnumName( RandGen ))
+        << "3\n0 0\n10 0\n0 10\n"
+           "3\n4 5\n5 5\n6 5\n"
+           "5\n41 -6\n-24 -74\n-51 -6\n73 17\n-30 -34\n"
+           "2\n-12 -26\n39 -8\n0"
+           << "in\non\nout\nout\nin";
+
+    testData = generatePIPTestData();
+    expected = generatePIPAnswers( testData );
+    QTest::newRow(me.valueToKey( RandGen ))
         << RandGen
-        << testdir + "/gen1";
-    QTest::newRow(qt_getEnumName( RandGenST ))
+        << testData
+        << expected;
+    testData = generatePIPTestData( true );
+    expected = generatePIPAnswers( testData );
+    QTest::newRow(me.valueToKey( RandGenST ))
         << RandGenST
-        << testdir + "/gen2";
-    QTest::newRow(qt_getEnumName( RandGenBM ))
+        << testData
+        << expected;
+    QTest::newRow(me.valueToKey( RandGenBM ))
         << RandGenBM
-        << testdir + "/gen3";
+        << generatePIPTestData(true, 10, 1000, 100)
+        << "";
 }
 
 // ----------------------------------------------------------------------------
@@ -237,33 +215,26 @@ void
 TestPointInPolygon::PointInPolygon()
 {
     QFETCH_GLOBAL(MYTESTS, index);
-    QFETCH_GLOBAL(QString, testfile);
+    QFETCH_GLOBAL(QString, testdata);
+    QFETCH_GLOBAL(QString, expected);
 
     try {
-        std::ifstream ifstrm( testfile.toStdString() + ".in" );
-        std::ifstream ansfstrm( testfile.toStdString() + ".ans" );
-        std::string res, expected;
-        std::ostringstream out(res);
+        std::string res;
+        std::ostringstream out;
+        std::istringstream in( testdata.toStdString() );
     
-        if( !ifstrm.good() ){
-            QFAIL("Failed to read from testfile.");
-        }
-        Solutions::PointInPolygon( ifstrm, out );
-        if( ifstrm.is_open() ){
-            ifstrm.close();
-        }
-
-        if( !ansfstrm.good() ){
-            QFAIL("Failed to read from answerfile.");
-        }
-        ansfstrm >> expected;
-        if( ansfstrm.is_open() ){
-            ansfstrm.close();
-        }
-
-        QCOMPARE(res, expected);
         if( index == RandGenBM ){
-            QBENCHMARK( Solutions::PointInPolygon( ifstrm, out ) );
+            QBENCHMARK( Solutions::PointInPolygon( in, out ) );
+        } else if( utils::isAnyOf( index, InvalidFormat, ExtraWhitespace ) ){
+            QVERIFY_EXCEPTION_THROWN( Solutions::PointInPolygon( in, out ), std::invalid_argument );
+        } else if( utils::isAnyOf( index, RandGen, RandGenST ) ) {
+            res = Solutions::PointInPolygon( in, out );
+            QVERIFY( res == expected.toStdString() );
+            QVERIFY( out.str() == expected.toStdString() );
+        } else {
+            res = Solutions::PointInPolygon( in, out );
+            QCOMPARE( res.c_str(), expected.toStdString().c_str() );
+            QCOMPARE( out.str().c_str(), expected.toStdString().c_str() );
         }
     } catch( const std::exception& e ){
         QFAIL(e.what());
@@ -271,5 +242,5 @@ TestPointInPolygon::PointInPolygon()
 }
 
 // ----------------------------------------------------------------------------
-QTEST_MAIN(TestPointInPolygon)
+QTEST_GUILESS_MAIN(TestPointInPolygon)
 // ----------------------------------------------------------------------------
