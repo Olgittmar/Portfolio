@@ -190,28 +190,27 @@ Line::intersects( const Point p ) const
     }
     if( !inHRange( p.x() ) ){
         return ( p.x() < min( _start.x(), _end.x() ) );
-    } else {
-        switch( slopeQuadrant() ){
-            case 1:
-            case 3:
-            {
-                return p.y() >= yAt( p.x() );
-            }
-            break;
-            case 2:
-            case 4:
-            {
-                return p.y() <= yAt( p.x() );
-            }
-            break;
-            case 0: {
-                // We already know that we are within range.
-                return p.x() <= max( _start.x(), _end.x() );
-            }
-            break;
-            default:
-                throw exception("Unexpected quadrant somehow encountered!");
+    }
+    switch( slopeQuadrant() ){
+        case 1:
+        case 3:
+        {
+            return p.y() >= yAt( p.x() );
         }
+        break;
+        case 2:
+        case 4:
+        {
+            return p.y() <= yAt( p.x() );
+        }
+        break;
+        case 0: {
+            // We already know that we are within range.
+            return p.x() <= max( _start.x(), _end.x() );
+        }
+        break;
+        default:
+            throw exception("Unexpected quadrant somehow encountered!");
     }
 }
 

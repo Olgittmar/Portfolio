@@ -17,6 +17,7 @@ PointInPolygon( std::istringstream& in, std::ostringstream& out)
         if ( numVertices == 0 ){
             break;
         }
+        poly.clear();
         utils::Polygon::readPolygon( in, numVertices, poly );
         if( !out.str().empty() ){
             out << '\n';

@@ -62,7 +62,7 @@ Polygon::classify(const Point p) const
             return "on";
         }
         if( line.intersects(p) ){
-            numIntersects++;
+            ++numIntersects;
         }
     }
     if ( numIntersects % 2 != 0 ){

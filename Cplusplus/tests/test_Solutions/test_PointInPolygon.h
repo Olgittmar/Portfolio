@@ -1,4 +1,6 @@
 #pragma once
+// Std
+#include <string>
 // Qt
 #include <QTest>
 #include <QPolygon>
@@ -28,6 +30,7 @@ class TestPointInPolygon: public QObject
         bool stressTest = false, int maxNumPolygons = 11,
         int maxNumVertices = 10000, int maxNumTestPoints = 10000 );
     QString generatePIPAnswers( const QString& testData ) const;
+    std::string strDiff( const std::string& str1, const std::string& str2 ) const;
 
   private slots:
     void initTestCase_data();

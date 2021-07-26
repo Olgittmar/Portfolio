@@ -22,6 +22,17 @@ TestPointInPolygon::pointsToQPolygon( const std::vector<utils::Point>& v ) const
     return ret;
 }
 
+std::string
+TestPointInPolygon::strDiff( const std::string& str1, const std::string& str2 ) const
+{
+    auto strDiffPos = std::mismatch( str1.begin(), str1.end(), str2.begin() );
+    auto rStrDiffPos = std::mismatch( str1.rbegin(), str1.rend(), str2.rbegin() );
+
+    std::string resDiff = std::string( strDiffPos.first, rStrDiffPos.first.base() );
+    std::string expectedDiff = std::string( strDiffPos.second, rStrDiffPos.second.base() );
+    return (resDiff + "\n\t!=\n" + expectedDiff);
+}
+
 // Format for PointInPolygon input data should be something like
 // [numVertices] <--- polygon 1
 // V1
@@ -112,7 +123,7 @@ TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
             break;
         } else if( numVertices == 0 ) {
             break;
-        } else {
+        } else if( lineIt != lines.cbegin() ) {
             answers += '\n';
         }
 
@@ -162,8 +173,6 @@ TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
 void
 TestPointInPolygon::initTestCase_data()
 {
-
-
     QTest::addColumn<MYTESTS>("index");
     QTest::addColumn<QString>("testdata");
     QTest::addColumn<QString>("expected");
@@ -229,7 +238,8 @@ TestPointInPolygon::PointInPolygon()
             QVERIFY_EXCEPTION_THROWN( Solutions::PointInPolygon( in, out ), std::invalid_argument );
         } else if( utils::isAnyOf( index, RandGen, RandGenST ) ) {
             res = Solutions::PointInPolygon( in, out );
-            QVERIFY( res == expected.toStdString() );
+            // QCOMPARE( res.size(), expected.size() );
+            QVERIFY2( res == expected.toStdString(), strDiff( res, expected.toStdString() ).c_str() );
             QVERIFY( out.str() == expected.toStdString() );
         } else {
             res = Solutions::PointInPolygon( in, out );
