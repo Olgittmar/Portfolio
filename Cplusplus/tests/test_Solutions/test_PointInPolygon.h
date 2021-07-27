@@ -15,7 +15,7 @@ class TestPointInPolygon: public QObject
   public:
     enum MYTESTS {
         Empty, InvalidFormat,
-        ExtraWhitespace, Generic,
+        ExtraWhitespace, Generic, GenericAutogenAnswers,
         RandGen, RandGenST, RandGenBM
     };
     Q_ENUM(MYTESTS);

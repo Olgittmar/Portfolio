@@ -28,50 +28,51 @@ TestStringUtils::initTestCase_data()
     QTest::addColumn<std::string>("inputString");
     QTest::addColumn<const char>("delimiter");
     QTest::addColumn<const char>("subdelimiter");
+    auto me = QMetaEnum::fromType<MYTESTS>();
     
-    QTest::newRow(qt_getEnumName( Empty ))
+    QTest::newRow(me.valueToKey( Empty ))
         << Empty // index
         << std::string() // inputString
         << '\n' // delimiter
         << ' '; // subdelimiter
     
-    QTest::newRow(qt_getEnumName( Invalid ))
+    QTest::newRow(me.valueToKey( Invalid ))
         << Invalid
         << std::string("\n\t0 -x&<string>\"fisk\n")
         << '\n'
         << ' ';
         
-    QTest::newRow(qt_getEnumName( DelimOnly ))
+    QTest::newRow(me.valueToKey( DelimOnly ))
         << DelimOnly
         << std::string("\n")
         << '\n'
         << ' ';
     
-    QTest::newRow(qt_getEnumName( ExtraWhitespace ))
+    QTest::newRow(me.valueToKey( ExtraWhitespace ))
         << ExtraWhitespace
         << std::string("\n\t\t          2 3           \t\t\t\t\n\n")
         << '\n'
         << ' ';
     
-    QTest::newRow(qt_getEnumName( Invalid_termination ))
+    QTest::newRow(me.valueToKey( Invalid_termination ))
         << Invalid_termination
         << std::string("1 2\n3 4\0\n5 6")
         << '\n'
         << ' ';
     
-    QTest::newRow(qt_getEnumName( Point ))
+    QTest::newRow(me.valueToKey( Point ))
         << Point
         << std::string("2 3")
         << '\n'
         << ' ';
     
-    QTest::newRow(qt_getEnumName( PointList ))
+    QTest::newRow(me.valueToKey( PointList ))
         << PointList
         << std::string("1 2\n3 4\n5 6")
         << '\n'
         << ' ';
         
-    QTest::newRow(qt_getEnumName( PointList_W_Non_Std_Delim ))
+    QTest::newRow(me.valueToKey( PointList_W_Non_Std_Delim ))
         << PointList_W_Non_Std_Delim
         << std::string("1,2\t3,4\t5,6")
         << '\t'
@@ -83,7 +84,7 @@ TestStringUtils::initTestCase_data()
     for( int i = 2; i <= LARGE_NUM_POINTS; ++i ){
         lpl += '\n' + std::to_string(utils::randInt()) + ' ' + std::to_string(utils::randInt());
     }
-    QTest::newRow( qt_getEnumName( LongPointList ))
+    QTest::newRow( me.valueToKey( LongPointList ))
         << LongPointList
         << lpl
         << '\n'

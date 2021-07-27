@@ -5,6 +5,8 @@
 #include <sstream>
 // Own
 #include <test_PointInPolygon.h>
+// Qt
+#include <QPainter>
 
 // ----------------------------------------------------------------------------
 // TEST INTERNALS
@@ -88,14 +90,15 @@ TestPointInPolygon::generatePIPTestData( bool stressTest, int maxNumPolygons, in
     return ret;
 }
 
+// TODO: we could probably draw on a pretend bitMap and check whether the testpoint has been drawn.
 QString
 TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
 {
-    QString answers;
-    QPolygon poly;
+    QString answers = "";
     QPoint testPoint;
     QStringList lines = testData.split(delim);
 
+    // Lambdas used specifically for this function
     auto getPoint = [lines]( QStringList::const_iterator lineIt ) -> QPoint {
         QStringList coordstr = lineIt->split(subdelim);
         QPoint ret;
@@ -114,6 +117,25 @@ TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
         return ret;
     };
 
+    auto getYAt = []( const QLine& line, int x, int* out ) -> bool {
+        if( line.dx() == 0 ) {
+            return false;
+        }
+        double slope = (double)line.dy()/(double)line.dx();
+        *out = line.p1().y() + qRound(slope * (x - line.p1().x()));
+        return true;
+    };
+    auto getXAt = []( const QLine& line, int y, int* out ) -> bool {
+        if( line.dy() == 0 ) {
+            return false;
+        }
+        double invSlope = (double)line.dx()/(double)line.dy();
+        *out = line.p1().x() + qRound(invSlope * (y - line.p1().y()));
+        return true;
+    };
+    // end lambdas
+
+
     for( auto lineIt = lines.cbegin(); lineIt != lines.cend(); ) {
         bool ok;
         // Read numVertices
@@ -128,7 +150,7 @@ TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
         }
 
         // Build polygon
-        poly.clear();
+        QPolygon poly;
         poly.resize(numVertices);
         for(int i = 0; i < numVertices; ++i ){
             poly.setPoint(i, getPoint( ++lineIt ));
@@ -138,6 +160,7 @@ TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
         int numTestPoints = (++lineIt)->toInt(&ok);
         if(!ok){
             qDebug() << "Failed to read numTestPoints: " << (int)(lineIt - lines.cbegin());
+            break;
         }
 
         // Test points
@@ -146,15 +169,38 @@ TestPointInPolygon::generatePIPAnswers( const QString& testData ) const
                 answers += '\n';
             }
             testPoint = getPoint( ++lineIt );
-            if( !poly.boundingRect().contains( testPoint ) ){
+            
+            if( !poly.boundingRect().contains( testPoint ) ) {
                 answers += "out";
-            } else if( poly.contains( testPoint ) ){
-                //! Gotta check if contains(point) returns true if the point is on the QPolygon.
+            } else if( poly.containsPoint( testPoint, Qt::OddEvenFill ) ) {
                 answers += "in";
-            } else if( poly.intersects( QPolygon( {testPoint} ) ) ){
+            } else if( poly.contains( testPoint )) {
                 answers += "on";
             } else {
-                answers += "out";
+                // testPoint is not inside the polygon, neither is it one of the vertices, but it might be on the perimiter.
+                QLine currLine;
+                int x, y;
+                auto pIt = poly.constBegin();
+                while( pIt != poly.constEnd() ) {
+                    currLine.setP1(*pIt);
+                    currLine.setP2(( ++pIt != poly.constEnd() ? *pIt : poly.first() ));
+                    // If testPoint isn't close to this line we can just move on.
+                    if( !QRect::span( currLine.p1(), currLine.p2() ).contains( testPoint ) ){
+                        continue;
+                    }
+                    // If the lines y/x-coordinate at testPoint.x/y is equal to testPoint.y/x, then the point is along the line,
+                    // and since we already checked that it is within the span of the line, the point must be on the line.
+                    if( ( getYAt( currLine, testPoint.x(), &y ) && testPoint.y() == y )
+                     || ( getXAt( currLine, testPoint.y(), &x ) && testPoint.x() == x ) ) {
+                        answers += "on";
+                        break;
+                    }
+                }
+                if( pIt == poly.constEnd() ){
+                    // If we checked every line of the polygon, and the point isn't on any of them,
+                    // since we already checked inside, the point must be outside the polygon.
+                    answers += "out";
+                }
             }
         }
         ++lineIt;
@@ -183,34 +229,47 @@ TestPointInPolygon::initTestCase_data()
         << Empty
         << ""
         << "";
+    
     QTest::newRow(me.valueToKey( InvalidFormat ))
         << InvalidFormat
         << "\t this*/shouldn't\\work \n0"
         << "";
+    
     QTest::newRow(me.valueToKey( ExtraWhitespace ))
         << ExtraWhitespace
         << "  \t \t3\n  0\t 0\n10  0\n\t0 10\n1\n 5   5\n 0\n\t"
         << "in";
+    
+    testData = "3\n0 0\n10 0\n0 10\n"
+               "3\n4 5\n5 5\n6 5\n"
+               "5\n41 -6\n-24 -74\n-51 -6\n73 17\n-30 -34\n"
+               "2\n-12 -26\n39 -8\n0";
+    expected = "in\non\nout\nout\nin";
     QTest::newRow(me.valueToKey( Generic ))
         << Generic
-        << "3\n0 0\n10 0\n0 10\n"
-           "3\n4 5\n5 5\n6 5\n"
-           "5\n41 -6\n-24 -74\n-51 -6\n73 17\n-30 -34\n"
-           "2\n-12 -26\n39 -8\n0"
-           << "in\non\nout\nout\nin";
+        << testData
+        << expected;
 
+    expected = generatePIPAnswers( testData );
+    QTest::newRow(me.valueToKey( GenericAutogenAnswers ))
+        << Generic
+        << testData
+        << expected;
+    
     testData = generatePIPTestData();
     expected = generatePIPAnswers( testData );
     QTest::newRow(me.valueToKey( RandGen ))
         << RandGen
         << testData
         << expected;
+    
     testData = generatePIPTestData( true );
     expected = generatePIPAnswers( testData );
     QTest::newRow(me.valueToKey( RandGenST ))
         << RandGenST
         << testData
         << expected;
+    
     QTest::newRow(me.valueToKey( RandGenBM ))
         << RandGenBM
         << generatePIPTestData(true, 10, 1000, 100)
@@ -238,13 +297,14 @@ TestPointInPolygon::PointInPolygon()
             QVERIFY_EXCEPTION_THROWN( Solutions::PointInPolygon( in, out ), std::invalid_argument );
         } else if( utils::isAnyOf( index, RandGen, RandGenST ) ) {
             res = Solutions::PointInPolygon( in, out );
-            // QCOMPARE( res.size(), expected.size() );
+            QCOMPARE( res.size(), expected.size() );
+            QCOMPARE( out.str().size(), expected.size() );
             QVERIFY2( res == expected.toStdString(), strDiff( res, expected.toStdString() ).c_str() );
-            QVERIFY( out.str() == expected.toStdString() );
+            QVERIFY2( out.str() == expected.toStdString(), strDiff( res, expected.toStdString() ).c_str() );
         } else {
             res = Solutions::PointInPolygon( in, out );
-            QCOMPARE( res.c_str(), expected.toStdString().c_str() );
             QCOMPARE( out.str().c_str(), expected.toStdString().c_str() );
+            QCOMPARE( res.c_str(), expected.toStdString().c_str() );
         }
     } catch( const std::exception& e ){
         QFAIL(e.what());

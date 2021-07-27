@@ -6,6 +6,7 @@
 #include <exception>
 // Own
 #include <test_Polygon.h>
+#include <utils.h>
 // --------------------------------------------------------------------------
 // TEST DATA
 // --------------------------------------------------------------------------
@@ -20,60 +21,69 @@ TestPolygon::initTestCase_data()
     QTest::addColumn<MYTESTS>("index");
     QTest::addColumn<utils::Polygon>("polygon");
     QTest::addColumn<std::string>("polygonStringRepresentation");
+    QTest::addColumn<int>("numVertices");
+    auto me = QMetaEnum::fromType<MYTESTS>();
 
 
-    QTest::newRow(qt_getEnumName(Empty))
+    QTest::newRow(me.valueToKey(Empty))
         << Empty
         << utils::Polygon()
-        << std::string();
+        << std::string()
+        << 0;
     
-    QTest::newRow(qt_getEnumName(Invalid))
+    QTest::newRow(me.valueToKey(Invalid))
         << Invalid
         << utils::Polygon()
-        << std::string("  \n\t,%&'<string>' fisk\0 ");
+        << std::string("  \n\t,%&'<string>' fisk\0 ")
+        << 2;
 
-    QTest::newRow(qt_getEnumName(Unreasonably_large_Coordinates))
+    QTest::newRow(me.valueToKey(Unreasonably_large_Coordinates))
         << Unreasonably_large_Coordinates
         << utils::Polygon()
-        << std::string( std::to_string( INT_MAX ) + "42" );
+        << std::string( std::to_string( INT_MAX ) + "42" )
+        << 1;
 
-    QTest::newRow(qt_getEnumName(Q1_Triangle))
+    QTest::newRow(me.valueToKey(Q1_Triangle))
         << Q1_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(0,10),
             utils::Point(10,0)
         })
-        << std::string("0 0\n0 10\n10 0");
+        << std::string("0 0\n0 10\n10 0")
+        << 3;
     
-    QTest::newRow(qt_getEnumName(Q2_Triangle))
+    QTest::newRow(me.valueToKey(Q2_Triangle))
         << Q2_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(-10,0),
             utils::Point(10,0)
         })
-        << std::string("0 0\n-10 0\n10 0");
+        << std::string("0 0\n-10 0\n10 0")
+        << 3;
     
-    QTest::newRow(qt_getEnumName(Q3_Triangle))
+    QTest::newRow(me.valueToKey(Q3_Triangle))
         << Q3_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(0,-10),
             utils::Point(-10,0)
         })
-        << std::string("0 0\n0 -10\n-10 0");
+        << std::string("0 0\n0 -10\n-10 0")
+        << 3;
     
-    QTest::newRow(qt_getEnumName(Q4_Triangle))
+    QTest::newRow(me.valueToKey(Q4_Triangle))
         << Q4_Triangle
         << utils::Polygon({
             utils::Point(0,0),
             utils::Point(10,0),
             utils::Point(0,-10)
         })
-        << std::string("0 0\n10 0\n0 -10");
+        << std::string("0 0\n10 0\n0 -10")
+        << 3;
     
-    QTest::newRow(qt_getEnumName(Upright_Square))
+    QTest::newRow(me.valueToKey(Upright_Square))
         << Upright_Square
         << utils::Polygon({
             utils::Point(-5,-5),
@@ -81,9 +91,10 @@ TestPolygon::initTestCase_data()
             utils::Point( 5, 5),
             utils::Point( 5,-5)
         })
-        << std::string("-5 -5\n-5 5\n5 5\n5 -5");
+        << std::string("-5 -5\n-5 5\n5 5\n5 -5")
+        << 4;
     
-    QTest::newRow(qt_getEnumName(Diamond))
+    QTest::newRow(me.valueToKey(Diamond))
         << Diamond
         << utils::Polygon({
             utils::Point(-10, 0),
@@ -91,9 +102,10 @@ TestPolygon::initTestCase_data()
             utils::Point( 10, 0),
             utils::Point( 0,-10)
         })
-        << std::string("-10 0\n0 10\n10 0\n0 -10");
+        << std::string("-10 0\n0 10\n10 0\n0 -10")
+        << 4;
     
-    QTest::newRow(qt_getEnumName(Star))
+    QTest::newRow(me.valueToKey(Star))
         << Star
         << utils::Polygon({
             utils::Point(-7, -7),
@@ -118,7 +130,8 @@ TestPolygon::initTestCase_data()
             "3 -2\n"
             "7 -7\n"
             "0 -3"
-        );
+        )
+        << 10;
     
 }
 
@@ -295,12 +308,24 @@ TestPolygon::classify()
 void
 TestPolygon::readPolygon()
 {
+    QFETCH_GLOBAL(MYTESTS, index);
     QFETCH_GLOBAL(utils::Polygon, polygon);
     QFETCH_GLOBAL(std::string, polygonStringRepresentation);
-    try {
-        QCOMPARE( utils::Polygon(polygonStringRepresentation), polygon );
-    } catch( std::exception& e ) {
-        QFAIL( e.what() );
+    QFETCH_GLOBAL(int, numVertices);
+
+    utils::Polygon res;
+    std::istringstream istrm(polygonStringRepresentation);
+    if( index == Invalid ) {
+        QVERIFY_EXCEPTION_THROWN( utils::Polygon::readPolygon( istrm, numVertices, res), std::invalid_argument );
+    } else if( index == Unreasonably_large_Coordinates ){
+        QVERIFY_EXCEPTION_THROWN( utils::Polygon::readPolygon( istrm, numVertices, res), std::out_of_range );
+    } else {
+        try {
+            utils::Polygon::readPolygon( istrm, numVertices, res);
+            QCOMPARE( res, polygon );
+        } catch( std::exception& e ) {
+            QFAIL( e.what() );
+        }
     }
 }
 
