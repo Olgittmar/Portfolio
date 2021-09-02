@@ -8,7 +8,7 @@ namespace Solutions {
 std::string
 PointInPolygon( std::istringstream& in, std::ostringstream& out)
 {
-    std::string line;
+    std::string line, _ret;
     utils::Polygon poly;
     utils::Point testPoint;
 
@@ -17,24 +17,28 @@ PointInPolygon( std::istringstream& in, std::ostringstream& out)
         if ( numVertices == 0 ){
             break;
         }
+
         poly.clear();
         utils::Polygon::readPolygon( in, numVertices, poly );
-        if( !out.str().empty() ){
-            out << '\n';
-        }
 
         std::getline( in, line, '\n' );
         int numPoints = std::stoi( line );
-        for( int i = 0; i < numPoints; i++) {
+        
+        if( !_ret.empty() ){
+            _ret += '\n';
+        }
+
+        for( int i = 0; i < numPoints; ++i ) {
             std::getline( in, line, '\n' );
-            if( i > 0 ){
-                out << '\n';
-            }
             testPoint = utils::Point( line );
-            out << poly.classify( testPoint );
+            if( i > 0 ){
+                _ret += '\n';
+            }
+            _ret += poly.classify( testPoint );
         }
     }
-    return out.str();
+    out << _ret;
+    return _ret;
 }
 
 }

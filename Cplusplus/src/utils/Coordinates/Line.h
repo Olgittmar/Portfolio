@@ -18,6 +18,8 @@ class Line {
     Line( const int start_x, const int start_y, const int end_x, const int end_y );
     explicit Line( const string& str );
 
+    static const double INCLUDES_PRECISION;
+
     bool operator==( const Line& other ) const { return (_start == other._start) && (_end == other._end); }
 
     inline Point start() const { return _start; }
@@ -64,5 +66,6 @@ class Line {
     Point _start;
     Point _end;
 };
+
 
 }

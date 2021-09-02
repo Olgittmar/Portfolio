@@ -4,6 +4,9 @@
 
 namespace utils {
 
+const double
+Line::INCLUDES_PRECISION = 0.015625;
+
 // Constructors
 Line::Line( const Point& startPoint, const Point& endPoint)
     :_start( startPoint ), _end( endPoint ) {}
@@ -164,7 +167,7 @@ Line::yAt( const int x ) const
         }
     } else {
         // For extremely long lines it might make a difference which point we use as reference
-        return (_start.y() + (x - _start.x())*slope() );
+        return ( _start.y() + (x - _start.x())*slope() );
     }
 }
 
@@ -178,7 +181,7 @@ Line::xAt( const int y ) const
             throw exception("Math error: xAt value is undefined, line is horizontal");
         }
     }
-    return (_start.x() + (y - _start.y())*invSlope() );
+    return ( _start.x() + (y - _start.y())*invSlope() );
 }
 
 
@@ -206,7 +209,9 @@ Line::intersects( const Point p ) const
         break;
         case 0: {
             // We already know that we are within range.
-            return p.x() <= max( _start.x(), _end.x() );
+            //! Actually, if we end up here we are definetly _on_ the line...
+            // return p.x() <= max( _start.x(), _end.x() );
+            return true;
         }
         break;
         default:
@@ -231,12 +236,9 @@ Line::includes( const Point p ) const
         // If the line is vertical or horizontal, the above checks are enough to guarantee that the point is on the line.
         return true;
     }
-    if( yAt( p.x() ) == p.y() ){
-        return true;
-    }
-    // Potentially we could fail the above due to rounding error test if dx is very large
-    // So let's test the other way around as well, otherwise we'll have to say it's not included.
-    return xAt( p.y() ) == p.x();
+    bool included = yAt(p.x()) == (double)p.y()
+                 && xAt(p.y()) == (double)p.x();
+    return included;
 }
 
 ostream&

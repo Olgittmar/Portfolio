@@ -65,7 +65,7 @@ Polygon::classify(const Point p) const
             ++numIntersects;
         }
     }
-    if ( numIntersects % 2 != 0 ){
+    if ( (numIntersects % 2) != 0 ){
         return "in";
     } else {
         return "out";
