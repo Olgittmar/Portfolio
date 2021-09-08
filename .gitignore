@@ -140,3 +140,10 @@ CMakeCache.txt
 # Personal workflow stuff
 # build.bat
 Cplusplus/clear.bat
+/DotNetCSharp/.vs/DotNetCSharp
+/DotNetCSharp/Coordinates/bin/Debug/net5.0
+/DotNetCSharp/Coordinates/obj
+/DotNetCSharp/DotNetCSharpApp/obj
+/DotNetCSharp/DotNetCSharpApp/bin/Debug/net5.0-windows
+/DotNetCSharp/TestCoordinates/bin/Debug/net5.0
+/DotNetCSharp/TestCoordinates/obj
