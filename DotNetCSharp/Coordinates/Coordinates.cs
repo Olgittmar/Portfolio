@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Coordinates
 {
@@ -27,6 +28,14 @@ namespace Coordinates
         {
             return base.ToString() + ": (" + x.ToString() + ", " + y.ToString() + ")";
         }
+        public readonly bool IsInHRange(int min, int max)
+        {
+            return x >= min && x <= max;
+        }
+        public readonly bool IsInVRange(int min, int max)
+        {
+            return y >= min && y <= max;
+        }
 
     }
 
@@ -41,15 +50,32 @@ namespace Coordinates
         {
             return base.ToString() + ": {\n\t\t" + start.ToString() + ",\n\t\t" + end.ToString() + "\n\t}";
         }
+        
+        public readonly int MinX
+        {
+            get { return Math.Min(start.x, end.x); }
+        }
+        public readonly int MaxX
+        {
+            get { return Math.Max(start.x, end.x); }
+        }
+        public readonly int MinY
+        {
+            get { return Math.Min(start.y, end.y); }
+        }
+        public readonly int MaxY
+        {
+            get { return Math.Max(start.y, end.y); }
+        }
 
 #pragma warning disable IDE1006 // Naming Styles
-// to distinguish from mathematical notation for derivative operator by x, Dx
+        // to distinguish from mathematical notation for derivative operator by x, Dx
         private readonly int dx {
             get { return end.x - start.x; } }
         private readonly int dy {
             get { return end.y - start.y; } }
 #pragma warning restore IDE1006 // Naming Styles
-        public readonly float Slope
+        public readonly double Slope
         {
             get
             {
@@ -57,24 +83,25 @@ namespace Coordinates
                 {
                     throw new DivideByZeroException();
                 }
-                return ((float)dy)/dx;
+                return ((double)dy)/dx;
             }
         }
-        public readonly float InvSlope
+        public readonly double InvSlope
         {
             get
             {
                 if(dy == 0) {
                     throw new DivideByZeroException();
                 }
-                return ((float)dx)/dy;
+                return ((double)dx)/dy;
             }
         }
-        private float YatXof(Point p)
+        // I don't trust the implicit conversions...
+        private double YatXof(Point p)
         {
             return start.y + (p.x - start.x) * Slope;
         }
-        private float XatYof(Point p)
+        private double XatYof(Point p)
         {
             return start.x + (p.y - start.y) * InvSlope;
         }
@@ -86,58 +113,62 @@ namespace Coordinates
                 return true;
             }
 
-            int minY = Math.Min(start.y, end.y);
-            int maxY = Math.Max(start.y, end.y);
-            int minX = Math.Min(start.x, end.x);
-            int maxX = Math.Max(start.x, end.x);
-
-            if ( p.y < minY || p.y > maxY
-              || p.x < minX || p.x > maxX) {
+            if ( p.y < MinY || p.y > MaxY
+              || p.x < MinX || p.x > MaxX) {
                 return false;
             }
 
             if ( dx == 0 ) {
                 return p.x == start.x &&
-                       p.y >= minY && p.y <= maxY;
+                       p.y >= MinY && p.y <= MaxY;
             }
 
             if ( dy == 0 ) {
                 return p.y == start.y &&
-                       p.x >= minX && p.x <= maxX;
+                       p.x >= MinX && p.x <= MaxX;
             }
-
-            return (int)Math.Round(YatXof(p)) == p.y;
+            if (Slope < 1) {
+                // If the y-coordinate of the line at p.x rounds to p.y, then we consider p on the line.
+                return (int)Math.Round(YatXof(p) - p.y, 0) == 0;
+            } else {
+                return (int)Math.Round(XatYof(p) - p.x, 0) == 0;
+            }
         }
         // Returns true if p lies strictly on the left side of the line,
         // and min(start.y, end.y) <= p.y <= max(start.y, end.y), otherwise false 
         public bool Intersects(Point p)
         {
-            if ( p.y < Math.Min(start.y, end.y)
-              && p.y > Math.Max(start.y, end.y) ) {
+            if (!p.IsInVRange(MinY, MaxY)) {
                 return false;
             }
+            if (!p.IsInHRange(MinX, MaxX)) {
+                return p.x < MinX;
+            }
+            if (dx == 0 || dy == 0) {
+                // Since the above check is false, if we get in here, the point is on the line.
+                return false;
+            }
+            // The line is neither vertical nor horizontal,
+            // and the point is somewhere within the bounding box of the line.
             return this.IsToRightOf(p);
         }
         // Returns true if this line is strictly to the right of p, otherwise false.
         private bool IsToRightOf(Point p)
         {
-            if (p.x > Math.Max(start.x, end.x))
-            {
-                return false;
-            }
-            if (dx == 0) {
-                return p.x < start.x;
-            }
-            if (dy == 0) {
-                return p.x < Math.Min(start.x, end.x);
-            }
-            // If Slope > 0 then we are either in the 1st or 3rd quadrant, eg: /
-            if ( Slope > 0 ) {
-                // Check if p is above the line at p.x
-                return YatXof(p) < (float)p.y;
+            // This helps with some rounding errors for very long lines.
+            if ( Math.Abs(Slope) < 1 ) {
+                // The line is more horizontal than vertical
+                // Doesn't matter what direction the line is, x at line should always be to right of p
+                return XatYof(p) > (double)p.x;
             } else {
-                // We are in the 2nd or 4th quadrant, eg: \
-                return XatYof(p) > (float)p.y;
+                // The line is more or equally vertical than horizontal
+                if (Slope > 0) {
+                    // If Slope > 0 then we are either in the 1st or 3rd quadrant, eg: /
+                    return YatXof(p) < (double)p.y;
+                } else {
+                    // We are in the 2nd or 4th quadrant, eg: \
+                    return YatXof(p) > (double)p.y;
+                }
             }
         }
     }
